@@ -6,66 +6,6 @@ using UnityEngine;
 
 public class LSystem
 {
-    public delegate float[] Transition(float[] args);
-    
-    public struct Module
-    {
-        public Module(char a) { sym = a; parameters = new List<float>(); trans = new Transition((float[] f) => { return f; }); }
-        public Module(char a, List<float> ps) { sym = a; parameters = ps; trans = new Transition((float[] f) => { return f; }); }
-        public Module(char a, List<float> ps, Transition t) { sym = a; parameters = ps; trans = t; }
-
-        public char sym { get; }
-        public List<float> parameters { get; set; }
-        public Transition trans { get; }
-
-        public void SetParams(List<float> ps)
-        {
-            parameters.Clear();
-            parameters.InsertRange(0, ps);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Module other = (Module)obj;
-            return (sym == other.sym) && (parameters.Count == other.parameters.Count);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            string str_out = sym.ToString();
-            if(parameters.Count > 0)
-            {
-                str_out += "(";
-
-                foreach(float f in parameters)
-                {
-                    str_out += f;
-                    str_out += ",";
-                }
-
-                str_out = str_out.Remove(str_out.Length -1);
-                str_out += ")";
-            }                           
-            return str_out;
-        }
-    };
-
-
-    struct ProductionRule
-    {
-        public ProductionRule(Module p, List<Module> s, float probability) { pre = p; suc = s; prob = probability;}
-
-        public Module pre { get; }
-        public List<Module> suc { get; }
-       
-        public float prob { get; }
-    };
-
     private List<Module> axiom;
     private List<ProductionRule> rules;
     private Dictionary<char, float> varMap;

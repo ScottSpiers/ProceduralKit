@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections.Generic;
 
-//[ExecuteInEditMode]
+
 public class PCGWindow : EditorWindow
 {
     bool isInit = true;
@@ -10,6 +10,8 @@ public class PCGWindow : EditorWindow
     private int num = 1;
 
     private List<string> rules = new List<string>();
+    [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
+    
 
     [MenuItem("Window/PCGKit")]
     public static void ShowWindow()
@@ -22,20 +24,26 @@ public class PCGWindow : EditorWindow
         if(isInit)
         {
             rules.Add("");
+            pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
             isInit = false;
         }
 
         GUILayout.Label("Trees", EditorStyles.boldLabel);
-        num = EditorGUILayout.DelayedIntField("#Rules", num);
+        //num = EditorGUILayout.DelayedIntField("#Rules", num);
 
-        if (num != rules.Count)
-            UpdateList();      
-        
+        //if (num != rules.Count)
+        //    UpdateList();
 
-        for(int i = 0; i < num; ++i)
-        {
-            rules[i] = EditorGUILayout.TextField("Rule #" + (i+1) + ": ", rules[i]);
-        }
+        SerializedObject obj = new SerializedObject(this);
+        SerializedProperty prop = obj.FindProperty("pRules");
+        EditorGUILayout.PropertyField(prop, new GUIContent("Rules: "), true);
+        obj.ApplyModifiedProperties();
+        //for (int i = 0; i < num; ++i)
+        //{           
+
+        //    //rules[i] = EditorGUILayout.TextField("Rule #" + (i+1) + ": ", rules[i]);
+
+        //}
 
     }
 
@@ -47,6 +55,7 @@ public class PCGWindow : EditorWindow
             while (n > num)
             {
                 rules.RemoveAt(n - 1);
+                //pRules.RemoveAt(n - 1);
                 --n;
             }
         }
@@ -55,8 +64,14 @@ public class PCGWindow : EditorWindow
             while (n < num)
             {
                 rules.Add("");
+                //pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
                 ++n;
             }
         }
+    }
+
+    private ProductionRule EditRule()
+    {
+        return null;
     }
 }
