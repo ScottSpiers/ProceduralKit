@@ -11,6 +11,8 @@ public class PCGWindow : EditorWindow
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
+
+    LSystem lSys = new LSystem();
     
 
     [MenuItem("Window/PCGKit")]
@@ -29,49 +31,51 @@ public class PCGWindow : EditorWindow
         }
 
         GUILayout.Label("Trees", EditorStyles.boldLabel);
-        //num = EditorGUILayout.DelayedIntField("#Rules", num);
-
-        //if (num != rules.Count)
-        //    UpdateList();
+        str = EditorGUILayout.TextField("Axiom: ", "");
+        lSys.SetAxiom(str);
 
         SerializedObject obj = new SerializedObject(this);
         SerializedProperty prop = obj.FindProperty("pRules");
         EditorGUILayout.PropertyField(prop, new GUIContent("Rules: "), true);
         obj.ApplyModifiedProperties();
-        //for (int i = 0; i < num; ++i)
-        //{           
 
-        //    //rules[i] = EditorGUILayout.TextField("Rule #" + (i+1) + ": ", rules[i]);
 
-        //}
-
-    }
-
-    private void UpdateList()
-    {
-        int n = rules.Count;
-        if (num < n)
+        if (GUILayout.Button("Generate"))
         {
-            while (n > num)
+            foreach(ProductionRule r in pRules)
             {
-                rules.RemoveAt(n - 1);
-                //pRules.RemoveAt(n - 1);
-                --n;
+                lSys.AddRule(r);
             }
+            Debug.Log("Generating...");
         }
-        else if (num > n)
-        {
-            while (n < num)
-            {
-                rules.Add("");
-                //pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
-                ++n;
-            }
-        }
+
     }
 
-    private ProductionRule EditRule()
-    {
-        return null;
-    }
+    //private void UpdateList()
+    //{
+    //    int n = rules.Count;
+    //    if (num < n)
+    //    {
+    //        while (n > num)
+    //        {
+    //            rules.RemoveAt(n - 1);
+    //            //pRules.RemoveAt(n - 1);
+    //            --n;
+    //        }
+    //    }
+    //    else if (num > n)
+    //    {
+    //        while (n < num)
+    //        {
+    //            rules.Add("");
+    //            //pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
+    //            ++n;
+    //        }
+    //    }
+    //}
+
+    //private ProductionRule EditRule()
+    //{
+    //    return null;
+    //}
 }

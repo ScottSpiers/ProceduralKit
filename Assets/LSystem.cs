@@ -57,13 +57,20 @@ public class LSystem
                         {
                             for (int j = 0; j < r.suc.Count; ++j)
                             {
-                                float[] paramList = r.suc[j].parameters.ToArray();
-                                Debug.Log(r.suc[j] + "has " + paramList.Length + " params.");
-                                paramList = r.suc[j].trans(paramList);
+                                //might want to check for params first
+                                float[] paramList = m.parameters.ToArray();
                                 List<float> ps = new List<float>();
-                                ps.InsertRange(0, paramList);
-                                r.suc[j].SetParams(ps);
-                                nextWord.Add(r.suc[j]);
+                                
+                                Debug.Log("Module: " + m.sym + " has param: " + paramList[0]);
+
+                                if(r.suc[j].parameters.Count > 0)
+                                {
+                                    ps.Clear();
+                                    paramList = r.suc[j].trans(paramList);
+                                    ps.InsertRange(0, paramList);
+                                    //r.suc[j].SetParams(ps);
+                                }
+                                nextWord.Add(new Module(r.suc[j].sym, ps));
                                 replaced = true;
                             }
                         }
@@ -79,6 +86,11 @@ public class LSystem
             nextWord.Clear();
         }
         return curWord;
+    }
+
+    public void AddRule(ProductionRule r)
+    {
+        rules.Add(r);
     }
 
     public void AddRule(Module p, List<Module> s, float prob)
@@ -129,6 +141,18 @@ public class LSystem
                 ++paramCount;
         }
         return paramCount;
+    }
+
+    //Need to be careful about params here, will possibly 
+    //need to parse or be creative with GUI
+    public void SetAxiom(string s)
+    {
+        axiom = new List<Module>();
+
+        foreach (char c in s)
+        {
+            axiom.Add(new Module(c));
+        }
     }
 
     public void SetVar(char c, float f)

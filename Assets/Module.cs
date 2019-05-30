@@ -25,6 +25,13 @@ public class Module
         trans = t;
     }
 
+    public Module(Module m)
+    {
+        sym = m.sym;
+        parameters = m.parameters;
+        trans = m.trans;
+    }
+
     public char sym;
     public List<float> parameters;
     public Transition trans { get; }
