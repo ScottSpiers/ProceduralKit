@@ -31,7 +31,7 @@ public class PCGWindow : EditorWindow
         }
 
         GUILayout.Label("Trees", EditorStyles.boldLabel);
-        str = EditorGUILayout.TextField("Axiom: ", "");
+        str = EditorGUILayout.TextField("Axiom: ", lSys.GetAxiom());
         lSys.SetAxiom(str);
 
         SerializedObject obj = new SerializedObject(this);

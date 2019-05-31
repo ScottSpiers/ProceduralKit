@@ -12,11 +12,17 @@ public class ProductionRuleDrawer : PropertyDrawer
 
         int indent = EditorGUI.indentLevel;
         //EditorGUI.indentLevel = 0;
+        //property.isExpanded = true;
 
+        SerializedProperty preProp = property.FindPropertyRelative("pre");
+        SerializedProperty sucProp = property.FindPropertyRelative("suc");
 
-        EditorGUI.PropertyField(new Rect(position.x, position.y, position.width, 100), property.FindPropertyRelative("pre"), true);
-        EditorGUI.PropertyField(new Rect(position.x, position.y + 100, position.width, 100), property.FindPropertyRelative("suc"), true);
-        EditorGUI.PropertyField(new Rect(position.x, position.y +200, position.width, position.height), property.FindPropertyRelative("prob"));
+        float preHeight = (preProp.isExpanded ? 150 : 30);
+        float sucHeight = (sucProp.isExpanded ? 150 : 30);
+
+        EditorGUI.PropertyField(new Rect(position.x, position.y, position.width, preHeight), preProp, true);
+        EditorGUI.PropertyField(new Rect(position.x, position.y + preHeight + 5, position.width, sucHeight), sucProp, true);
+        EditorGUI.PropertyField(new Rect(position.x, position.y + preHeight + sucHeight + 5, position.width, 30), property.FindPropertyRelative("prob"));
 
         EditorGUI.indentLevel = indent;
         EditorGUI.EndProperty();
@@ -24,6 +30,10 @@ public class ProductionRuleDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
+        if (property.isExpanded)
+        {
+            return 1.5f * EditorGUI.GetPropertyHeight(property, label);
+        }
         return EditorGUI.GetPropertyHeight(property, label);
     }
 }

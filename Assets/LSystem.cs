@@ -155,6 +155,16 @@ public class LSystem
         }
     }
 
+    public string GetAxiom()
+    {
+        string str_out = "";
+        foreach(Module m in axiom)
+        {
+            str_out += m;
+        }
+        return str_out;
+    }
+
     public void SetVar(char c, float f)
     {
         varMap[c] = f;
