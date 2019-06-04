@@ -41,7 +41,8 @@ public class LSystem
     public List<Module> RunSystem(int iterations)
     {
         List<Module> nextWord = new List<Module>();
-        List<Module> curWord = axiom;
+        List<Module> curWord = new List<Module>();
+        curWord.InsertRange(0, axiom);
 
         for (int i = 0; i < iterations;  ++i)
         {
@@ -61,7 +62,7 @@ public class LSystem
                                 float[] paramList = m.parameters.ToArray();
                                 List<float> ps = new List<float>();
                                 
-                                Debug.Log("Module: " + m.sym + " has param: " + paramList[0]);
+                                //Debug.Log("Module: " + m.sym + " has param: " + paramList[0]);
 
                                 if(r.suc[j].parameters.Count > 0)
                                 {
@@ -86,6 +87,11 @@ public class LSystem
             nextWord.Clear();
         }
         return curWord;
+    }
+
+    public void Clear()
+    {
+        rules.Clear();
     }
 
     public void AddRule(ProductionRule r)

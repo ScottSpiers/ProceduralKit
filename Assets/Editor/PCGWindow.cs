@@ -2,7 +2,6 @@
 using UnityEditor;
 using System.Collections.Generic;
 
-
 public class PCGWindow : EditorWindow
 {
     bool isInit = true;
@@ -12,6 +11,7 @@ public class PCGWindow : EditorWindow
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
 
+    
     LSystem lSys = new LSystem();
     
 
@@ -23,6 +23,8 @@ public class PCGWindow : EditorWindow
 
     private void OnGUI()
     {
+        lSys.Clear();
+        
         if(isInit)
         {
             rules.Add("");
@@ -38,15 +40,24 @@ public class PCGWindow : EditorWindow
         SerializedProperty prop = obj.FindProperty("pRules");
         EditorGUILayout.PropertyField(prop, new GUIContent("Rules: "), true);
         obj.ApplyModifiedProperties();
+        Repaint();
 
+        num = EditorGUILayout.IntField("Iterations: ", num);
 
         if (GUILayout.Button("Generate"))
         {
+            Debug.Log("Generating...");
             foreach(ProductionRule r in pRules)
             {
                 lSys.AddRule(r);
             }
-            Debug.Log("Generating...");
+
+            string str_out = "";
+            foreach(Module m in lSys.RunSystem(num))
+            {
+                str_out += m;
+            }
+            Debug.Log(str_out);
         }
 
     }
