@@ -52,12 +52,23 @@ public class PCGWindow : EditorWindow
                 lSys.AddRule(r);
             }
 
+            List<Module> mods = lSys.RunSystem(num);
             string str_out = "";
-            foreach(Module m in lSys.RunSystem(num))
+            foreach(Module m in mods)
             {
                 str_out += m;
             }
             Debug.Log(str_out);
+
+            Interpreter intptr = new Interpreter();
+            GameObject go = new GameObject("Tree");
+            go.transform.position = Vector3.zero;
+            MeshFilter mf = go.AddComponent<MeshFilter>();
+            MeshRenderer mr = go.AddComponent<MeshRenderer>();
+
+            
+            //mr.sharedMaterial.color = Color.white;
+            mf.mesh = intptr.InterpretSystem(mods, 100.0f, 100.0f, 25.7f);
         }
 
     }
