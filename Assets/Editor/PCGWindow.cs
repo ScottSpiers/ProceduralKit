@@ -46,19 +46,19 @@ public class PCGWindow : EditorWindow
 
         if (GUILayout.Button("Generate"))
         {
-            Debug.Log("Generating...");
+            //Debug.Log("Generating...");
             foreach(ProductionRule r in pRules)
             {
                 lSys.AddRule(r);
             }
 
             List<Module> mods = lSys.RunSystem(num);
-            string str_out = "";
-            foreach(Module m in mods)
-            {
-                str_out += m;
-            }
-            Debug.Log(str_out);
+            //string str_out = "";
+            //foreach(Module m in mods)
+            //{
+            //    str_out += m;
+            //}
+            //Debug.Log(str_out);
 
             Interpreter intptr = new Interpreter();
             GameObject go = new GameObject("Tree");
@@ -66,9 +66,10 @@ public class PCGWindow : EditorWindow
             MeshFilter mf = go.AddComponent<MeshFilter>();
             MeshRenderer mr = go.AddComponent<MeshRenderer>();
 
-            
-            //mr.sharedMaterial.color = Color.white;
-            mf.mesh = intptr.InterpretSystem(mods, 100.0f, 100.0f, 25.7f);
+            Material mat = new Material(Shader.Find("Standard"));
+            mr.sharedMaterial = mat;
+            mr.sharedMaterial.color = Color.black;
+            mf.mesh = intptr.InterpretSystem(mods, 0.02f, 100.0f, 25.7f);
         }
 
     }

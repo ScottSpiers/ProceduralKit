@@ -48,7 +48,7 @@ public class LSystem
         {
             foreach (Module m in curWord)
             {
-                Debug.Log(m);
+                //Debug.Log(m);
                 bool replaced = false;
                 foreach (ProductionRule r in rules)
                 {
