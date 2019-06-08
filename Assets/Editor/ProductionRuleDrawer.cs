@@ -46,6 +46,8 @@ public class ProductionRuleDrawer : PropertyDrawer
             int paramsSize = curProp.FindPropertyRelative("parameters").arraySize;
             //add onto suc height 15 * size
             sucHeight += 15 * paramsSize;
+            string str_in = "";
+            
             
         }
 
