@@ -214,6 +214,7 @@ public class Interpreter
            
         }
         mesh.SetVertices(verts);
+        //mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         
         mesh.SetIndices(indices.ToArray(), MeshTopology.Lines, 0);
         //mesh.SetTriangles(indices, 0);

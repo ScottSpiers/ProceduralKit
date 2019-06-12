@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System;
 
 public class PCGWindow : EditorWindow
 {
@@ -10,8 +11,10 @@ public class PCGWindow : EditorWindow
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
+    [SerializeField] private List<char> keyList = new List<char>();
+    [SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
 
-    
+
     LSystem lSys = new LSystem();
     
 
@@ -37,8 +40,18 @@ public class PCGWindow : EditorWindow
         lSys.SetAxiom(str);
 
         SerializedObject obj = new SerializedObject(this);
-        SerializedProperty prop = obj.FindProperty("pRules");
-        EditorGUILayout.PropertyField(prop, new GUIContent("Rules: "), true);
+
+        SerializedProperty keyProp = obj.FindProperty("keyList");
+        EditorGUILayout.PropertyField(keyProp, new GUIContent("Variables: "), true);
+
+        SerializedProperty valProp = obj.FindProperty("valList");
+        EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
+
+
+        //TIE THESE IN ^^^^^^!!!!!
+
+        SerializedProperty ruleProp = obj.FindProperty("pRules");
+        EditorGUILayout.PropertyField(ruleProp, new GUIContent("Rules: "), true);
         obj.ApplyModifiedProperties();
         Repaint();
 
