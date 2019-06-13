@@ -35,7 +35,7 @@ public class Module
 
     public char sym;
     public List<float> parameters;
-    public Transition trans { get; }
+    public Transition trans;
 
     public void SetParams(List<float> ps)
     {

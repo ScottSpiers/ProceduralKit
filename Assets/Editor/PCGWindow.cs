@@ -52,7 +52,21 @@ public class PCGWindow : EditorWindow
 
         SerializedProperty ruleProp = obj.FindProperty("pRules");
         EditorGUILayout.PropertyField(ruleProp, new GUIContent("Rules: "), true);
+        
         obj.ApplyModifiedProperties();
+
+        
+        foreach(ProductionRule pr in pRules)
+        {
+            pr.suc.Clear();
+            if(pr.sucRep.Length > 0)
+            {
+                List<Module> mods = ModuleParser.StringToModuleList(pr.sucRep);
+                pr.suc.InsertRange(0, mods);
+            }
+        }
+
+        //can go into rules and then get trans from there... how do I know what to set it to though?
         Repaint();
 
         num = EditorGUILayout.IntField("Iterations: ", num);

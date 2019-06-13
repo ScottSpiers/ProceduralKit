@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 
 public class ModuleParser
 {
-
-
    public static List<Module> StringToModuleList(string s)
     {
         List<Module> mods = new List<Module>();
@@ -48,24 +46,73 @@ public class ModuleParser
 
             if (opIndex >= 1)
             {
-                float temp1 = float.Parse(p.Substring(0, opIndex));
-                float temp2 = float.Parse(p.Substring(opIndex + 1)); //assuming no other ops and stuff
+                //setup initial expressions (float[] input, float[] s creation, return s) Might also need a block expression 
+                //if temp1 is a char, then MethodCall GetVar(<char>) from lSys
+                //else if temp1 is $<int> then create param from the float[]?
+                //else constant
+                //if temp2 ...
+
+                //if(either temp1 or 2 isn't const)
+                //create op expression
+
+                //compile the Expression<Transition>? 
+                //set m.Transition to this
+                
+                float temp1 = 0.0f;
+                bool isT1 = float.TryParse(p.Substring(0, opIndex), out temp1);
+                float temp2 = 0.0f;
+                bool isT2 = float.TryParse(p.Substring(opIndex + 1), out temp2); //assuming no other ops and stuff
 
                 char op = p[opIndex];
-                if (op == '*') val = temp1 * temp2;
-                if (op == '/') val = temp1 / temp2;
-                if (op == '+') val = temp1 + temp2;
-                if (op == '-') val = temp1 - temp2;
-                //if (op == '&') val = temp1 & temp2;
-                //if (op == '^') val = temp1 ^ temp2;
-                //if (op == '|') val = temp1 | temp2;
-                //if (op == '!') val = temp1 ! temp2;
+
+                if(isT1 && isT2)
+                {
+                    if (op == '*') val = temp1 * temp2;
+                    if (op == '/') val = temp1 / temp2;
+                    if (op == '+') val = temp1 + temp2;
+                    if (op == '-') val = temp1 - temp2;
+                    //if (op == '&') val = temp1 & temp2;
+                    //if (op == '^') val = temp1 ^ temp2;
+                    //if (op == '|') val = temp1 | temp2;
+                    //if (op == '!') val = temp1 ! temp2;
+                    m.parameters.Add(val);
+                }
+                else
+                {
+                    //the param is a transition, add 0.0f to params and build expression tree storing compiled version to trans
+                }
+
             }
             else
             {
-                val = float.Parse(p);
+                Expression input = Expression.Parameter(typeof(float[]), "f");
+                List<Expression> exps = new List<Expression>();
+                val = 0.0f;
+                bool isVal = float.TryParse(p, out val);
+
+                if (isVal)
+                    m.parameters.Add(val);
+
+                else
+                {
+                    if(p[0] == '$')
+                    {
+                        int index = int.Parse(p.Substring(1));
+                        exps.Add(Expression.ArrayAccess(input, new Expression[]{ Expression.Constant(index)}));
+                    }
+                    else
+                    {
+                        //Need the lSys instance for this... hmmm
+                        //exps.Add(Expression.Call());
+                    }
+                }
+
+                //Expression<Module.Transition> trans = Expression.Lambda<Module.Transition>();
+                //trans.Compile();
+                //need to test for vars / params here
+                //if const then add, if var then methodcall, if param then array access
+                
             }
-            m.parameters.Add(val);
         }
     }
 }

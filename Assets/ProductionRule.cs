@@ -10,6 +10,7 @@ public class ProductionRule
     {
         pre = new Module('F');
         suc = new List<Module>();
+        sucRep = "";
         prob = 1.0f;
     }
 
@@ -17,11 +18,12 @@ public class ProductionRule
     {
         pre = p;
         suc = s;
+        sucRep = "";
         prob = probability;
     }
 
     public Module pre;
     public List<Module> suc;
-
+    public string sucRep; //string representation of the successor
     public float prob;
 }

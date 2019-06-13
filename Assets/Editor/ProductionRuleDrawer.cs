@@ -8,7 +8,6 @@ public class ProductionRuleDrawer : PropertyDrawer
 {
 
     private float height;
-    string m ="";
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
@@ -34,31 +33,39 @@ public class ProductionRuleDrawer : PropertyDrawer
         paramProp.arraySize = nParams;
 
         EditorGUIUtility.labelWidth = lblWidth * 0.334f;
-        suc = EditorGUI.DelayedTextField(new Rect(position.x + position.width * 0.3f, position.y, position.width * 0.55f, position.height), "Suc: ", m);
-        SerializedProperty sucProp = property.FindPropertyRelative("suc");
+        SerializedProperty repProp = property.FindPropertyRelative("sucRep");
 
-        mods = ModuleParser.StringToModuleList(suc);
-        sucProp.arraySize = mods.Count;
+        suc = EditorGUI.DelayedTextField(new Rect(position.x + position.width * 0.3f, position.y, position.width * 0.55f, position.height), "Suc: ", repProp.stringValue);
+        repProp.stringValue = suc;
 
-        for(int i = 0; i < mods.Count; ++i)
-        {
-            sucProp.GetArrayElementAtIndex(i).FindPropertyRelative("sym").intValue = mods[i].sym;
+        //SerializedProperty sucProp = property.FindPropertyRelative("suc");
 
-            SerializedProperty paramsProp = sucProp.GetArrayElementAtIndex(i).FindPropertyRelative("parameters");
-            paramsProp.arraySize = mods[i].parameters.Count;
-            for(int j = 0; j < mods[i].parameters.Count; ++j)
-            {
-                paramsProp.GetArrayElementAtIndex(j).floatValue = mods[i].parameters[j];
-            }
+        //mods = ModuleParser.StringToModuleList(suc);
+        //sucProp.arraySize = mods.Count;
 
-            //HOW THE FUCK DO I SET THE TRANSITION FUNCTION!
-        }
+        //for(int i = 0; i < mods.Count; ++i)
+        //{
+        //    sucProp.GetArrayElementAtIndex(i).FindPropertyRelative("sym").intValue = mods[i].sym;
 
-        m = "";
-        foreach(Module mod in mods)
-        {
-            m += mod;
-        }
+        //    SerializedProperty paramsProp = sucProp.GetArrayElementAtIndex(i).FindPropertyRelative("parameters");
+        //    paramsProp.arraySize = mods[i].parameters.Count;
+        //    for(int j = 0; j < mods[i].parameters.Count; ++j)
+        //    {
+        //        paramsProp.GetArrayElementAtIndex(j).floatValue = mods[i].parameters[j];
+        //    }
+
+        //    //HOW THE FUCK DO I SET THE TRANSITION FUNCTION!
+
+        //    Module.Transition t = mods[i].trans;
+            
+            
+        //}
+
+        //m = "";
+        //foreach(Module mod in mods)
+        //{
+        //    m += mod;
+        //}
 
         //parse suc into List<Module> (Static parser?)
         //set array size (sucprop.arraySize = mods.Count)
@@ -67,7 +74,7 @@ public class ProductionRuleDrawer : PropertyDrawer
 
         SerializedProperty probProp = property.FindPropertyRelative("prob");
         EditorGUI.PropertyField(new Rect(position.x + position.width * 0.85f, position.y, position.width * 0.15f, position.height), probProp, new GUIContent("Prob: "));
-
+        
 
         EditorGUIUtility.labelWidth = lblWidth;
         EditorGUI.EndProperty();        
