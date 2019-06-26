@@ -36,7 +36,7 @@ public class PCGWindow : EditorWindow
         }
 
         GUILayout.Label("Trees", EditorStyles.boldLabel);
-        str = EditorGUILayout.TextField("Axiom: ", lSys.GetAxiom());
+        str = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
         lSys.SetAxiom(str);
 
         SerializedObject obj = new SerializedObject(this);
@@ -47,6 +47,18 @@ public class PCGWindow : EditorWindow
         SerializedProperty valProp = obj.FindProperty("valList");
         EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
 
+
+        int lowCount = keyList.Count;
+        if (valList.Count < lowCount)
+        {
+            lowCount = valList.Count;
+            
+        }
+
+        for(int i = 0; i < lowCount; ++i)
+        {
+            lSys.SetVar(keyList[i], valList[i]);
+        }
 
         //TIE THESE IN ^^^^^^!!!!!
 
@@ -61,7 +73,7 @@ public class PCGWindow : EditorWindow
             pr.suc.Clear();
             if(pr.sucRep.Length > 0)
             {
-                List<Module> mods = ModuleParser.StringToModuleList(pr.sucRep);
+                List<Module> mods = ModuleParser.StringToModuleList(pr.sucRep, lSys);
                 pr.suc.InsertRange(0, mods);
             }
         }
@@ -80,23 +92,23 @@ public class PCGWindow : EditorWindow
             }
 
             List<Module> mods = lSys.RunSystem(num);
-            //string str_out = "";
-            //foreach(Module m in mods)
-            //{
-            //    str_out += m;
-            //}
-            //Debug.Log(str_out);
+            string str_out = "";
+            foreach (Module m in mods)
+            {
+                str_out += m;
+            }
+            Debug.Log(str_out);
 
             Interpreter intptr = new Interpreter();
             GameObject go = new GameObject("Tree");
             go.transform.position = Vector3.zero;
             MeshFilter mf = go.AddComponent<MeshFilter>();
             MeshRenderer mr = go.AddComponent<MeshRenderer>();
-
-            Material mat = new Material(Shader.Find("Standard"));
+            
+            Material mat = new Material(Shader.Find("Sprites/Default"));
             mr.sharedMaterial = mat;
             mr.sharedMaterial.color = Color.black;
-            mf.mesh = intptr.InterpretSystem(mods, 0.02f, 100.0f, 25.7f);
+            mf.mesh = intptr.InterpretSystem(mods, .1f, .01f, 60.0f);
         }
 
     }

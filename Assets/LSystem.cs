@@ -153,12 +153,14 @@ public class LSystem
     //need to parse or be creative with GUI
     public void SetAxiom(string s)
     {
-        axiom = new List<Module>();
+        axiom = ModuleParser.StringToModuleList(s, this);
+        //axiom = new List<Module>();
 
-        foreach (char c in s)
-        {
-            axiom.Add(new Module(c));
-        }
+
+        //foreach (char c in s)
+        //{
+        //    axiom.Add(new Module(c));
+        //}
     }
 
     public string GetAxiom()

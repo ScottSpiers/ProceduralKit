@@ -27,7 +27,7 @@ public class Interpreter
         Stack<TurtleState> turtleStack = new Stack<TurtleState>();
         Stack<int> indexStack = new Stack<int>();
 
-        Vector3 offset = Vector3.up * width;
+        Vector3 offset = Vector3.right;
         offset.Normalize();
 
         int index = 0;
@@ -54,38 +54,38 @@ public class Interpreter
                         
                         nextState.pos += rotated * curState.stepSize; //XMVectorAdd(nextState.pos, XMVectorScale(rotated, curState.stepSize));
 
-                        Vector3 offsetPoint = nextState.pos + offset * nextState.width;
+                        Vector3 offsetPoint = nextState.pos + (q *offset) * nextState.width;
                         
-                        if(isStart) //we just started, create 4 vertices
-                        {
+                        //if(isStart) //we just started, create 4 vertices
+                        //{
                         
                             //Add Vertices
                             verts.Add(curState.pos);
-                            //verts.Add(curState.pos + (offset * width));
+                            verts.Add(curState.pos + ((q * offset) * curState.width));
                             verts.Add(nextState.pos);
-                            //verts.Add(offsetPoint);
+                            verts.Add(offsetPoint);
 
                             //Add Indices
-                            indices.Add(0);
-                            indices.Add(1);
-                            //indices.Add(2);
+                            indices.Add(index++); //what if we branched!!
+                            indices.Add(index++);
+                            indices.Add(index++);
 
-                            index++;
-                            isStart = false;
+                            //index++;
+                            //isStart = false;
 
-                            //indices.Add(index - 2);
-                            //indices.Add(index - 1);
-                            //indices.Add(index++);
-                        }
-                        else
-                        {
+                            indices.Add(index - 1);
+                            indices.Add(index - 2);
+                            indices.Add(index++);
+                        //}
+                        //else
+                        //{
                             //Add Vertices
-                            verts.Add(nextState.pos);
-                            //verts.Add(offsetPoint);
-                            int tempIndex = indices[indices.Count - 1];
-                            indices.Add(index);
-                            index = tempIndex + 1;
-                            indices.Add(index);
+                            //verts.Add(nextState.pos);
+                            ////verts.Add(offsetPoint);
+                            //int tempIndex = indices[indices.Count - 1];
+                            //indices.Add(index);
+                            //index = tempIndex + 1;
+                            //indices.Add(index);
 
                             //Add Indices
                             //if (isBranchReturn)
@@ -112,34 +112,45 @@ public class Interpreter
                             //    //indices.Add(index++);
                             //}
 
-                        }
+                        //}
 
                         //create vertices in cur and next pos, create mid vertex as ((up * width) + cur.pos)
                         //creating 4 vertices on 1st run 2 after that: the next pos and it's width offset
-                        
-                        //if branchReturn
-                            //do proper index things
-                        //else
-                            //indices = Ic-2, Ic-1, Ic++
 
+                        //if branchReturn
+                        //do proper index things
+                        //else
+                        //indices = Ic-2, Ic-1, Ic++
+                      
+                        //q = Quaternion.Euler(0.27f *  Vector3.Cross((q * Vector3.up), new Vector3(-0.02f, -1.0f, 0.0f)));
                         break;
                     }
                 case 'f':
                     {
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            curState.stepSize = m.parameters[0];
+
                         nextState.pos += curState.stepSize * rotated;
                         //THIS IS STILL RELEVANT
                         //index = m_indices.size(); //need to increase the index, in case we  go back or just so we don't draw where we shouldn't 
                         break;
                     }
                 case '+':
-                    {                       
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * angleDelta));
+                    {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
+
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * angle));
                         //nextState.RotateAxisAngle(Vector3.forward, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[2], angleDelta);
                         break;
                     }
                 case '-':
                     {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
                         //check for params: 1st is angle, should there be any more?
                         //change these back to 2!
                         //nextState.RotateAxisAngle(Vector3.forward, -angleDelta);
@@ -149,6 +160,9 @@ public class Interpreter
                     }
                 case '&':
                     {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.right * angleDelta));
                         //nextState.RotateAxisAngle(Vector3.right, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[0], angleDelta);
@@ -156,6 +170,9 @@ public class Interpreter
                     }
                 case '^':
                     {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.right * -angleDelta));
                         //nextState.RotateAxisAngle(Vector3.right, -angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[0], -angleDelta);
@@ -163,6 +180,9 @@ public class Interpreter
                     }
                 case '\\':
                     {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.up * angleDelta));
                         //nextState.RotateAxisAngle(Vector3.up, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[1], angleDelta);
@@ -170,6 +190,9 @@ public class Interpreter
                     }
                 case '/':
                     {
+                        float angle = angleDelta;
+                        if (m.parameters.Count >= 1) //will need to extend this for width
+                            angle = m.parameters[0];
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.up * -angleDelta));
                         //nextState.RotateAxisAngle(Vector3.up, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[1], -angleDelta);
@@ -197,14 +220,15 @@ public class Interpreter
                     }
                 case ']':
                     {
-                        TurtleState retState = new TurtleState(turtleStack.Pop());
-                        nextState.pos = retState.pos;
+                        //TurtleState retState = new TurtleState(turtleStack.Pop());
+                        nextState = new TurtleState(turtleStack.Pop());
+                        //nextState.pos = retState.pos;
                         //nextState.rot = retState.rot;
-                        nextState.stepSize = retState.stepSize;
-                        nextState.width = retState.width;
-                        q = retState.rot;
-                        index = indexStack.Pop();
-                        isBranchReturn = true;
+                        //nextState.stepSize = retState.stepSize;
+                        //nextState.width = retState.width;
+                        q = nextState.rot;
+                        //index = indexStack.Pop();
+                        //isBranchReturn = true;
                         break;
                     }
                 default:
@@ -216,7 +240,7 @@ public class Interpreter
         mesh.SetVertices(verts);
         //mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         
-        mesh.SetIndices(indices.ToArray(), MeshTopology.Lines, 0);
+        mesh.SetIndices(indices.ToArray(), MeshTopology.Triangles, 0);
         //mesh.SetTriangles(indices, 0);
         mesh.name = "Tree";
         //mesh.RecalculateNormals();
