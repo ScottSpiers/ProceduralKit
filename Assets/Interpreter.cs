@@ -49,12 +49,15 @@ public class Interpreter
                 case 'F':
                     {
                         //Check params: Assume 1st is stepSize 2nd is width 3rd is stepDelta 4th is branchDelta
-                        if (m.parameters.Count >= 1) //will need to extend this for width
+                        if (m.parameters.Count > 0) //will need to extend this for width
                             curState.stepSize = m.parameters[0];
-                        
+
+                        if (m.parameters.Count > 1)
+                            curState.width = m.parameters[1];
+
                         nextState.pos += rotated * curState.stepSize; //XMVectorAdd(nextState.pos, XMVectorScale(rotated, curState.stepSize));
 
-                        Vector3 offsetPoint = nextState.pos + (q *offset) * nextState.width;
+                        Vector3 offsetPoint = nextState.pos + (q *offset) * curState.width;
                         
                         //if(isStart) //we just started, create 4 vertices
                         //{
