@@ -125,7 +125,7 @@ public class Interpreter
                         //else
                         //indices = Ic-2, Ic-1, Ic++
                       
-                        //q = Quaternion.Euler(0.27f *  Vector3.Cross((q * Vector3.up), new Vector3(-0.02f, -1.0f, 0.0f)));
+                        q = Quaternion.Euler(0.27f *  Vector3.Cross((q * Vector3.up), new Vector3(-0.02f, -1.0f, 0.0f)));
                         break;
                     }
                 case 'f':
@@ -157,7 +157,7 @@ public class Interpreter
                         //check for params: 1st is angle, should there be any more?
                         //change these back to 2!
                         //nextState.RotateAxisAngle(Vector3.forward, -angleDelta);
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * -angleDelta));
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * -angle));
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[2], -angleDelta);
                         break;
                     }
@@ -166,7 +166,7 @@ public class Interpreter
                         float angle = angleDelta;
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.right * angleDelta));
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.right * angle));
                         //nextState.RotateAxisAngle(Vector3.right, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[0], angleDelta);
                         break;
@@ -176,7 +176,7 @@ public class Interpreter
                         float angle = angleDelta;
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.right * -angleDelta));
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.right * -angle));
                         //nextState.RotateAxisAngle(Vector3.right, -angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[0], -angleDelta);
                         break;
@@ -186,7 +186,7 @@ public class Interpreter
                         float angle = angleDelta;
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.up * angleDelta));
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.up * angle));
                         //nextState.RotateAxisAngle(Vector3.up, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[1], angleDelta);
                         break;
@@ -196,7 +196,7 @@ public class Interpreter
                         float angle = angleDelta;
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
-                        q = Quaternion.Euler(q.eulerAngles + (Vector3.up * -angleDelta));
+                        q = Quaternion.Euler(q.eulerAngles + (Vector3.up * -angle));
                         //nextState.RotateAxisAngle(Vector3.up, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[1], -angleDelta);
                         break;
