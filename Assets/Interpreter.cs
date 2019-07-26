@@ -82,38 +82,38 @@ public class Interpreter
                         //}
                         //else
                         //{
-                            //Add Vertices
-                            //verts.Add(nextState.pos);
-                            ////verts.Add(offsetPoint);
-                            //int tempIndex = indices[indices.Count - 1];
-                            //indices.Add(index);
-                            //index = tempIndex + 1;
-                            //indices.Add(index);
+                        //Add Vertices
+                        //verts.Add(nextState.pos);
+                        ////verts.Add(offsetPoint);
+                        //int tempIndex = indices[indices.Count - 1];
+                        //indices.Add(index);
+                        //index = tempIndex + 1;
+                        //indices.Add(index);
 
-                            //Add Indices
-                            //if (isBranchReturn)
-                            //{
-                            //    indices.Add(index);
-                            //    index = indices[indices.Count];
-                            //    indices.Add(index);
-                            //    //indices.Add(index + 1);
+                        //Add Indices
+                        //if (isBranchReturn)
+                        //{
+                        //    indices.Add(index);
+                        //    index = indices[indices.Count];
+                        //    indices.Add(index);
+                        //    //indices.Add(index + 1);
 
-                            //    //indices.Add(index + 1);
-                            //    //indices.Add(indices[indices.Count - 1]);
-                            //    //index = indices[indices.Count - 1] +1;
-                            //    //indices.Add(index++);
-                            //    isBranchReturn = false;
-                            //}
-                            //else
-                            //{
-                            //    //indices.Add(index - 2);
-                            //    indices.Add(index - 1);
-                            //    indices.Add(index++);
+                        //    //indices.Add(index + 1);
+                        //    //indices.Add(indices[indices.Count - 1]);
+                        //    //index = indices[indices.Count - 1] +1;
+                        //    //indices.Add(index++);
+                        //    isBranchReturn = false;
+                        //}
+                        //else
+                        //{
+                        //    //indices.Add(index - 2);
+                        //    indices.Add(index - 1);
+                        //    indices.Add(index++);
 
-                            //    //indices.Add(index - 2);
-                            //    //indices.Add(index - 1);
-                            //    //indices.Add(index++);
-                            //}
+                        //    //indices.Add(index - 2);
+                        //    //indices.Add(index - 1);
+                        //    //indices.Add(index++);
+                        //}
 
                         //}
 
@@ -124,8 +124,13 @@ public class Interpreter
                         //do proper index things
                         //else
                         //indices = Ic-2, Ic-1, Ic++
-                      
-                        q = Quaternion.Euler(0.27f *  Vector3.Cross((q * Vector3.up), new Vector3(-0.02f, -1.0f, 0.0f)));
+
+                        Vector3 a = new Vector3(-0.02f, -1.0f, 0.0f);
+                       
+                        //q = Quaternion.FromToRotation(rotated, a);
+                        
+                        //q = Quaternion.Euler();
+                        //q = Quaternion.Euler(q.x, q.z, q.z);
                         break;
                     }
                 case 'f':

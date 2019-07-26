@@ -52,7 +52,7 @@ public class LSystem
                 bool replaced = false;
                 foreach (ProductionRule r in rules)
                 {
-                    if (r.pre.Equals(m))
+                    if (r.pre.Equals(m) && !replaced)
                     {
                         if (ApplyRule(r.prob))
                         {

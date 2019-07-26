@@ -8,6 +8,10 @@ public class PCGWindow : EditorWindow
     bool isInit = true;
     private string str = "Default";
     private int num = 1;
+    private float angle = 22.7f;
+    private int numOut = 1;
+
+    private int createdCount = 0;
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
@@ -60,7 +64,6 @@ public class PCGWindow : EditorWindow
             lSys.SetVar(keyList[i], valList[i]);
         }
 
-        //TIE THESE IN ^^^^^^!!!!!
 
         SerializedProperty ruleProp = obj.FindProperty("pRules");
         EditorGUILayout.PropertyField(ruleProp, new GUIContent("Rules: "), true);
@@ -78,10 +81,14 @@ public class PCGWindow : EditorWindow
             }
         }
 
-        //can go into rules and then get trans from there... how do I know what to set it to though?
+        //Moves the genertae button
         Repaint();
 
+        angle = EditorGUILayout.FloatField("Angle: ", angle);
+
         num = EditorGUILayout.IntField("Iterations: ", num);
+
+        numOut = EditorGUILayout.IntField("Output Count: ", numOut);
 
         if (GUILayout.Button("Generate"))
         {
@@ -91,24 +98,40 @@ public class PCGWindow : EditorWindow
                 lSys.AddRule(r);
             }
 
-            List<Module> mods = lSys.RunSystem(num);
-            string str_out = "";
-            foreach (Module m in mods)
-            {
-                str_out += m;
-            }
-            Debug.Log(str_out);
 
-            Interpreter intptr = new Interpreter();
-            GameObject go = new GameObject("Tree");
-            go.transform.position = Vector3.zero;
-            MeshFilter mf = go.AddComponent<MeshFilter>();
-            MeshRenderer mr = go.AddComponent<MeshRenderer>();
+            float xOffset = 10f;
+
+            for(int i = 0; i < numOut; ++i)
+            {
+                List<Module> mods = lSys.RunSystem(num);
+                string str_out = "";
+                foreach (Module m in mods)
+                {
+                    str_out += m;
+                }
+                Debug.Log(str_out);
+
+                Interpreter intptr = new Interpreter();
+                GameObject go = new GameObject("Tree");
+                //go.transform.position = Vector3.zero;
+                go.transform.position = new Vector3(i * xOffset, 0f, 0f);
+                MeshFilter mf = go.AddComponent<MeshFilter>();
+                MeshRenderer mr = go.AddComponent<MeshRenderer>();
             
-            Material mat = new Material(Shader.Find("Sprites/Default"));
-            mr.sharedMaterial = mat;
-            mr.sharedMaterial.color = Color.black;
-            mf.mesh = intptr.InterpretSystem(mods, .1f, .01f, 60.0f);
+                Material mat = new Material(Shader.Find("Sprites/Default"));
+                mr.sharedMaterial = mat;
+                mr.sharedMaterial.color = Color.black;
+                mf.mesh = intptr.InterpretSystem(mods, .1f, .1f, angle);
+
+                ++createdCount;
+
+                AssetDatabase.CreateAsset(mf.sharedMesh, "Assets/NewGO" + createdCount + ".mesh");
+                AssetDatabase.CreateAsset(mr.sharedMaterial, "Assets/NewGO" + createdCount + ".mat");
+                PrefabUtility.SaveAsPrefabAssetAndConnect(go, "Assets/NewGO" + createdCount + ".prefab", InteractionMode.AutomatedAction);
+                
+                
+                
+            }
         }
 
     }
