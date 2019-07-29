@@ -40,6 +40,7 @@ public class LSystem
 
     public List<Module> RunSystem(int iterations)
     {
+        MetricCounter mc = new MetricCounter();
         List<Module> nextWord = new List<Module>();
         List<Module> curWord = new List<Module>();
         curWord.InsertRange(0, axiom);
@@ -52,7 +53,7 @@ public class LSystem
                 bool replaced = false;
                 foreach (ProductionRule r in rules)
                 {
-                    if (r.pre.Equals(m) && !replaced)
+                    if (r.pre.Equals(m))
                     {
                         if (ApplyRule(r.prob))
                         {
@@ -82,10 +83,30 @@ public class LSystem
                     nextWord.Add(m);
             }
 
+            if(i < iterations - 1)
+            {
+                string mods = "";
+                foreach(Module m in nextWord)
+                {
+                    mods += m;
+                }
+
+                mc.MetricCount(mods);
+            }
+
             curWord.Clear();
             curWord.InsertRange(curWord.Count, nextWord);
             nextWord.Clear();
         }
+
+        string mods2 = "";
+        foreach (Module m in curWord)
+        {
+            mods2 += m;
+        }
+
+        Debug.Log("NumRooms: " + mc.GetRooms() + "\nNumCorridors: " + mc.GetCorridors() + "\nNumTurns: " + mc.GetTurns(mods2));
+
         return curWord;
     }
 
