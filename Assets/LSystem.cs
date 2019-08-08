@@ -10,11 +10,14 @@ public class LSystem
     private List<ProductionRule> rules;
     private Dictionary<char, float> varMap;
 
+
+    private MetricCounter mc;
     public LSystem()
     {
         axiom = new List<Module>();
         rules = new List<ProductionRule>();
         varMap = new Dictionary<char, float>();
+        mc = new MetricCounter();
     }
 
     public LSystem(string a) : this()
@@ -40,7 +43,8 @@ public class LSystem
 
     public List<Module> RunSystem(int iterations)
     {
-        MetricCounter mc = new MetricCounter();
+        
+        //mc.ResetMetrics();
         List<Module> nextWord = new List<Module>();
         List<Module> curWord = new List<Module>();
         curWord.InsertRange(0, axiom);
@@ -55,7 +59,7 @@ public class LSystem
                 {
                     if (r.pre.Equals(m))
                     {
-                        if (ApplyRule(r.prob))
+                        if (ApplyRule(r.prob) && !replaced)
                         {
                             for (int j = 0; j < r.suc.Count; ++j)
                             {
@@ -83,29 +87,30 @@ public class LSystem
                     nextWord.Add(m);
             }
 
-            if(i < iterations - 1)
-            {
-                string mods = "";
-                foreach(Module m in nextWord)
-                {
-                    mods += m;
-                }
+            //if(i < iterations - 1)
+            //{
+            //    string mods = "";
+            //    foreach(Module m in nextWord)
+            //    {
+            //        mods += m;
+            //    }
 
-                mc.MetricCount(mods);
-            }
-
+            //    mc.MetricCount(mods);
+            //}
             curWord.Clear();
             curWord.InsertRange(curWord.Count, nextWord);
             nextWord.Clear();
         }
 
-        string mods2 = "";
-        foreach (Module m in curWord)
-        {
-            mods2 += m;
-        }
+        //string mods2 = "";
+        //foreach (Module m in curWord)
+        //{
+        //    mods2 += m;
+        //}
 
-        Debug.Log("NumRooms: " + mc.GetRooms() + "\nNumCorridors: " + mc.GetCorridors() + "\nNumTurns: " + mc.GetTurns(mods2));
+        //Debug.Log("NumRooms: " + mc.GetRooms() + "\nNumCorridors: " + mc.GetCorridors() + "\nNumTurns: " + mc.GetTurns(mods2));
+        //mc.UpdateLevelCount();
+        //Debug.Log(mc.GetLevelCount());
 
         return curWord;
     }

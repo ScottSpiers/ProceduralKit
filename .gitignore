@@ -6,6 +6,7 @@
 _[Bb]uilds/
 Assets/AssetStoreTools*
 Assets/Textures/
+Meshes/
 
 # Visual Studio cache directory
 .vs/

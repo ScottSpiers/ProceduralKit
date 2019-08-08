@@ -101,7 +101,11 @@ public class PCGWindow : EditorWindow
 
             float xOffset = 10f;
 
-            for(int i = 0; i < numOut; ++i)
+            Material mat = new Material(Shader.Find("Sprites/Default"));
+            mat.color = new Color(0.0f, 0.0f, 0.0f, 0.2f);
+            AssetDatabase.CreateAsset(mat, "Assets/GeometryMaterial.mat");
+
+            for (int i = 0; i < numOut; ++i)
             {
                 List<Module> mods = lSys.RunSystem(num);
                 string str_out = "";
@@ -112,21 +116,21 @@ public class PCGWindow : EditorWindow
                 Debug.Log(str_out);
 
                 Interpreter intptr = new Interpreter();
-                GameObject go = new GameObject("Tree");
+                GameObject go = new GameObject("Geometry" + i);
                 //go.transform.position = Vector3.zero;
-                go.transform.position = new Vector3(i * xOffset, 0f, 0f);
+                go.transform.position = new Vector3(0f, 0f, 0f);
                 MeshFilter mf = go.AddComponent<MeshFilter>();
                 MeshRenderer mr = go.AddComponent<MeshRenderer>();
             
-                Material mat = new Material(Shader.Find("Sprites/Default"));
+               //Material mat = new Material(Shader.Find("Sprites/Default"));
                 mr.sharedMaterial = mat;
-                mr.sharedMaterial.color = Color.black;
-                mf.mesh = intptr.InterpretSystem(mods, .1f, .1f, angle);
+                //mr.sharedMaterial.color = Color.black;
+                mf.mesh = intptr.InterpretSystem(mods, 1.0f, 1.0f, angle);
 
                 ++createdCount;
 
                 AssetDatabase.CreateAsset(mf.sharedMesh, "Assets/NewGO" + createdCount + ".mesh");
-                AssetDatabase.CreateAsset(mr.sharedMaterial, "Assets/NewGO" + createdCount + ".mat");
+                //AssetDatabase.CreateAsset(mr.sharedMaterial, "Assets/NewGO" + createdCount + ".mat");
                 PrefabUtility.SaveAsPrefabAssetAndConnect(go, "Assets/NewGO" + createdCount + ".prefab", InteractionMode.AutomatedAction);               
                 
             }

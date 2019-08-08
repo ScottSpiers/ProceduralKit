@@ -125,11 +125,13 @@ public class Interpreter
                         //else
                         //indices = Ic-2, Ic-1, Ic++
 
-                        Vector3 a = new Vector3(-0.02f, -1.0f, 0.0f);
-                       
-                        //q = Quaternion.FromToRotation(rotated, a);
+                        //Vector3 a = new Vector3(-0.02f, -1.0f, 0.0f);
+                        //Quaternion temp = Quaternion.FromToRotation(a, rotated);
+
                         
-                        //q = Quaternion.Euler();
+                        //Vector3 temp = Vector3.LerpUnclamped(rotated, a, 0.27f);
+                        //q = Quaternion.Euler(q.x + temp.x, q.y + temp.y, q.z + temp.z);
+                        //q.SetLookRotation(temp, Vector3.up);
                         //q = Quaternion.Euler(q.x, q.z, q.z);
                         break;
                     }
