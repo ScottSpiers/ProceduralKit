@@ -12,6 +12,8 @@ public class PCGWindow : EditorWindow
     private int numOut = 1;
 
     private int createdCount = 0;
+    private Dictionary<string, int> dupMap = new Dictionary<string, int>();
+    private int dupCount;
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
@@ -105,6 +107,8 @@ public class PCGWindow : EditorWindow
             mat.color = new Color(0.0f, 0.0f, 0.0f, 0.2f);
             AssetDatabase.CreateAsset(mat, "Assets/GeometryMaterial.mat");
 
+            dupCount = 0;
+            dupMap.Clear();
             for (int i = 0; i < numOut; ++i)
             {
                 List<Module> mods = lSys.RunSystem(num);
@@ -113,7 +117,19 @@ public class PCGWindow : EditorWindow
                 {
                     str_out += m;
                 }
-                Debug.Log(str_out);
+
+
+                if (dupMap.ContainsKey(str_out))
+                {
+                    dupMap[str_out] += 1;
+                }
+                else
+                {
+                    dupMap.Add(str_out, 1);
+                }
+                //Debug.Log(str_out);
+
+                    
 
                 Interpreter intptr = new Interpreter();
                 GameObject go = new GameObject("Geometry" + i);
@@ -134,6 +150,16 @@ public class PCGWindow : EditorWindow
                 PrefabUtility.SaveAsPrefabAssetAndConnect(go, "Assets/NewGO" + createdCount + ".prefab", InteractionMode.AutomatedAction);               
                 
             }
+
+            foreach (KeyValuePair<string, int> kv in dupMap)
+            {
+                if (kv.Value > 1)
+                {
+                    dupCount += kv.Value - 1;
+                    Debug.Log("Duplicate Reuslt: " + kv.Key + "\nTimes Generated: " + kv.Value);
+                }
+            }
+            Debug.Log("Num Duplicates: " + dupCount);
         }
 
     }
