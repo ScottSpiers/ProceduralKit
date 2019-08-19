@@ -151,7 +151,7 @@ public class ModuleParser
                         }
                         else
                         {
-                            exp1 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t1[0]));
+                            exp1 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t1));
                             //Debug.Log(exp1);
                         }
 
@@ -195,17 +195,18 @@ public class ModuleParser
                         int index = int.Parse(p.Substring(1));
                         e = Expression.Assign(Expression.ArrayAccess(newFs, Expression.Constant(nArrayIndex)),Expression.ArrayAccess(f, Expression.Constant(index)));
                         exps.Add(e);
+                        m.parameters.Add(0.0f);
                     }
                     else
                     {
 
                         //Need the lSys instance for this... hmmm
                         
-                        e = Expression.Assign(Expression.ArrayAccess(newFs, Expression.Constant(nArrayIndex)), Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(p[0])));
+                        e = Expression.Assign(Expression.ArrayAccess(newFs, Expression.Constant(nArrayIndex)), Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(p)));
                         //Debug.Log(e);
                         exps.Add(e);
-                    }
-                    m.parameters.Add(0.0f);
+                        m.parameters.Add(l.GetVar(p));
+                    }                    
                 }
 
                 //Expression<Module.Transition> trans = Expression.Lambda<Module.Transition>();

@@ -249,8 +249,8 @@ public class Interpreter
         }
         mesh.SetVertices(verts);
         //mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        
         mesh.SetIndices(indices.ToArray(), MeshTopology.Triangles, 0);
+        
         //mesh.SetTriangles(indices, 0);
         mesh.name = "Tree";
         //mesh.RecalculateNormals();

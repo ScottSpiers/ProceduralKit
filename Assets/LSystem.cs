@@ -8,20 +8,23 @@ public class LSystem
 {
     private List<Module> axiom;
     private List<ProductionRule> rules;
-    private Dictionary<char, float> varMap;
+    private Dictionary<string, float> varMap;
+    private string axiomRep;
 
 
     private MetricCounter mc;
     public LSystem()
     {
+        axiomRep = "";
         axiom = new List<Module>();
         rules = new List<ProductionRule>();
-        varMap = new Dictionary<char, float>();
+        varMap = new Dictionary<string, float>();
         mc = new MetricCounter();
     }
 
     public LSystem(string a) : this()
     {
+        axiomRep = a;
         axiom = new List<Module>();
 
         foreach(char c in a)
@@ -32,11 +35,16 @@ public class LSystem
 
     public LSystem(Module a) : this()
     {
+        axiomRep = a.ToString();
         axiom.Add(a);
     }
 
     public LSystem(List<Module> a) : this()
-    {        
+    {
+        foreach(Module m in a)
+        {
+            axiomRep += m;
+        }
         axiom = a;
     }
 
@@ -179,9 +187,13 @@ public class LSystem
     //need to parse or be creative with GUI
     public void SetAxiom(string s)
     {
+        axiomRep = s;
         axiom = ModuleParser.StringToModuleList(s, this);
         //axiom = new List<Module>();
-
+        //foreach(Module m in axiom)
+        //{
+        //    axiomRep += m;
+        //}
 
         //foreach (char c in s)
         //{
@@ -191,21 +203,22 @@ public class LSystem
 
     public string GetAxiom()
     {
-        string str_out = "";
-        foreach(Module m in axiom)
-        {
-            str_out += m;
-        }
-        return str_out;
+        return axiomRep;
+        //string str_out = "";
+        //foreach(Module m in axiom)
+        //{
+        //    str_out += m;
+        //}
+        //return str_out;
     }
 
-    public void SetVar(char c, float f)
+    public void SetVar(string s, float f)
     {
-        varMap[c] = f;
+        varMap[s] = f;
     }
 
-    public float GetVar(char c)
+    public float GetVar(string s)
     {
-        return varMap[c];
+        return varMap[s];
     }
 }

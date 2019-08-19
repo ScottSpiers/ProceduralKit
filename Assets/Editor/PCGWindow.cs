@@ -2,22 +2,26 @@
 using UnityEditor;
 using System.Collections.Generic;
 using System;
+using System.Text.RegularExpressions;
 
 public class PCGWindow : EditorWindow
 {
     bool isInit = true;
     private string str = "Default";
     private int num = 1;
+    private float stepSize = 1f;
+    private float width = 1f;
     private float angle = 22.7f;
     private int numOut = 1;
 
+    private Vector2 scrollPos;
     private int createdCount = 0;
-    private Dictionary<string, int> dupMap = new Dictionary<string, int>();
+
     private int dupCount;
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
-    [SerializeField] private List<char> keyList = new List<char>();
+    [SerializeField] private List<string> keyList = new List<string>();
     [SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
 
 
@@ -30,25 +34,34 @@ public class PCGWindow : EditorWindow
         GetWindow<PCGWindow>("PCG");
     }
 
+
+    /*
+     *  EditorGUILayout.BeginHorizontal();
+        scrollPos =
+            EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Width(100), GUILayout.Height(100));
+        GUILayout.Label(t);
+        EditorGUILayout.EndScrollView();
+        */
+
     private void OnGUI()
     {
         lSys.Clear();
         
-        if(isInit)
+        if(isInit && rules.Count <= 0)
         {
             rules.Add("");
             pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
             isInit = false;
         }
 
-        GUILayout.Label("Trees", EditorStyles.boldLabel);
-        str = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
-        lSys.SetAxiom(str);
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        //scrollPos = EditorGUILayout.BeginVertical(GUILayout.Height(100));
 
+        GUILayout.Label("Variables: ", EditorStyles.boldLabel);
         SerializedObject obj = new SerializedObject(this);
 
         SerializedProperty keyProp = obj.FindProperty("keyList");
-        EditorGUILayout.PropertyField(keyProp, new GUIContent("Variables: "), true);
+        EditorGUILayout.PropertyField(keyProp, new GUIContent("Names: "), true);
 
         SerializedProperty valProp = obj.FindProperty("valList");
         EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
@@ -65,6 +78,11 @@ public class PCGWindow : EditorWindow
         {
             lSys.SetVar(keyList[i], valList[i]);
         }
+
+        GUILayout.Label("L-Systems:", EditorStyles.boldLabel);
+        
+        str = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
+        lSys.SetAxiom(str);
 
 
         SerializedProperty ruleProp = obj.FindProperty("pRules");
@@ -83,8 +101,12 @@ public class PCGWindow : EditorWindow
             }
         }
 
-        //Moves the genertae button
+        //Moves the generate button
         Repaint();
+
+        stepSize = EditorGUILayout.FloatField("Segment Length: ", stepSize);
+
+        width = EditorGUILayout.FloatField("Segment Width: ", width);
 
         angle = EditorGUILayout.FloatField("Angle: ", angle);
 
@@ -107,26 +129,34 @@ public class PCGWindow : EditorWindow
             mat.color = new Color(0.0f, 0.0f, 0.0f, 0.2f);
             AssetDatabase.CreateAsset(mat, "Assets/GeometryMaterial.mat");
 
+            List<Mesh> meshes = new List<Mesh>();
             dupCount = 0;
-            dupMap.Clear();
+            //dupMap.Clear();
+
+            string symbols = "Ff+-[]|";
             for (int i = 0; i < numOut; ++i)
             {
                 List<Module> mods = lSys.RunSystem(num);
                 string str_out = "";
                 foreach (Module m in mods)
                 {
-                    str_out += m;
+                    if(symbols.IndexOf(m.sym) != -1)
+                        str_out += m;
                 }
 
 
-                if (dupMap.ContainsKey(str_out))
-                {
-                    dupMap[str_out] += 1;
-                }
-                else
-                {
-                    dupMap.Add(str_out, 1);
-                }
+                //str_out = Regex.Replace(str_out, "[^Ff+*/ ()0-9|,-]", "", RegexOptions.Compiled);
+                //str_out.Replace("^[Ff+-()[][0-9]", "");
+                //Debug.Log(str_out);
+
+                //if (dupMap.ContainsKey(str_out))
+                //{
+                //    dupMap[str_out] += 1;
+                //}
+                //else
+                //{
+                //    dupMap.Add(str_out, 1);
+                //}
                 //Debug.Log(str_out);
 
                     
@@ -141,7 +171,63 @@ public class PCGWindow : EditorWindow
                //Material mat = new Material(Shader.Find("Sprites/Default"));
                 mr.sharedMaterial = mat;
                 //mr.sharedMaterial.color = Color.black;
-                mf.mesh = intptr.InterpretSystem(mods, 1.0f, 1.0f, angle);
+                Mesh newMesh = intptr.InterpretSystem(mods, stepSize, width, angle);
+                mf.mesh = newMesh;
+
+                Dictionary<Vector3, int> vertexCount = new Dictionary<Vector3, int>();
+                foreach(Vector3 v in newMesh.vertices)
+                {
+                    if(vertexCount.ContainsKey(v))
+                    {
+                        vertexCount[v] += 1;
+                    }
+                    else
+                    {
+                        vertexCount.Add(v, 1);
+                    }
+                }
+
+                bool isDuplicate = false;
+                foreach(Mesh m in meshes)
+                {
+                    Dictionary<Vector3, int> vCount = new Dictionary<Vector3, int>();
+                    foreach(Vector3 v in m.vertices)
+                    {
+                        if (vCount.ContainsKey(v))
+                        {
+                            vCount[v] += 1;
+                        }
+                        else
+                        {
+                            vCount.Add(v, 1);
+                        }
+                    }
+
+                    bool isDup = true;
+                    if (vertexCount.Keys.Count == vCount.Keys.Count)
+                    {
+                        foreach (KeyValuePair<Vector3, int> kv in vertexCount)
+                        {
+                            if (!vCount.ContainsKey(kv.Key))
+                            {
+                                isDup = false;
+                                break;
+                            }
+                            else if (vCount[kv.Key] != kv.Value)
+                            {
+                                isDup = false;
+                                break;
+                            }
+                        }
+                        if (isDup)
+                        {
+                            isDuplicate = true;
+                            ++dupCount;
+                        }
+                    }
+                }
+                if (!isDuplicate)
+                    meshes.Add(newMesh);
 
                 ++createdCount;
 
@@ -151,16 +237,17 @@ public class PCGWindow : EditorWindow
                 
             }
 
-            foreach (KeyValuePair<string, int> kv in dupMap)
-            {
-                if (kv.Value > 1)
-                {
-                    dupCount += kv.Value - 1;
-                    Debug.Log("Duplicate Reuslt: " + kv.Key + "\nTimes Generated: " + kv.Value);
-                }
-            }
+            //foreach (KeyValuePair<Tuple<Vector3[], int[]>, int> kv in dupMap)
+            //{
+            //    if (kv.Value > 1)
+            //    {
+            //        dupCount += kv.Value - 1;
+            //        Debug.Log("Duplicate Reuslt: " + kv.Key + "\nTimes Generated: " + kv.Value);
+            //    }
+            //}
             Debug.Log("Num Duplicates: " + dupCount);
         }
+        EditorGUILayout.EndScrollView();
 
     }
 
