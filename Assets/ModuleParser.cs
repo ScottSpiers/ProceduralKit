@@ -122,14 +122,14 @@ public class ModuleParser
                             exp1 = Expression.ArrayAccess(f, Expression.Constant(int.Parse(str_t1.Substring(1))));
                         else
                         {
-                            exp1 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t1[0]));
+                            exp1 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t1));
                             //Debug.Log(exp1);
                         }
 
                         if (str_t2[0] == '$')
                             exp2 = Expression.ArrayAccess(f, Expression.Constant(int.Parse(str_t2.Substring(1))));
                         else
-                            exp2 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t2[0]));
+                            exp2 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t2));
                     }
                     else if (isT1)
                     {
@@ -138,7 +138,7 @@ public class ModuleParser
                         if(str_t2[0] == '$')
                             exp2 = Expression.ArrayAccess(f, Expression.Constant(int.Parse(str_t2.Substring(1))));
                         else
-                            exp2 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t2[0]));
+                            exp2 = Expression.Call(Expression.Constant(l), typeof(LSystem).GetMethod("GetVar"), Expression.Constant(str_t2));
                     }
                     //then t2 is the issue
                     else
