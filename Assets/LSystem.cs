@@ -12,6 +12,8 @@ public class LSystem
     private string axiomRep;
 
 
+    private Dictionary<char, float> probMap;
+
     private MetricCounter mc;
     public LSystem()
     {
@@ -20,6 +22,7 @@ public class LSystem
         rules = new List<ProductionRule>();
         varMap = new Dictionary<string, float>();
         mc = new MetricCounter();
+        probMap = new Dictionary<char, float>();
     }
 
     public LSystem(string a) : this()
@@ -126,16 +129,41 @@ public class LSystem
     public void Clear()
     {
         rules.Clear();
+        probMap.Clear();
     }
 
     public void AddRule(ProductionRule r)
     {
+        float p = r.desiredProb;
+        if (probMap.ContainsKey(r.pre.sym))
+        {
+            r.prob = p / (1 - probMap[r.pre.sym]);
+            probMap[r.pre.sym] += p;
+        }
+        else
+        {
+            r.prob = p;
+            probMap.Add(r.pre.sym, p);
+        }
+
+        Debug.Log("Desired: " + r.desiredProb + "\tEffective: " + r.prob);
         rules.Add(r);
     }
 
     public void AddRule(Module p, List<Module> s, float prob)
     {
-        rules.Add(new ProductionRule(p, s, prob));
+
+        float pTemp = prob;
+        if (probMap.ContainsKey(p.sym))
+        {
+            pTemp = prob / (1 - probMap[p.sym]);
+            probMap[p.sym] += prob;
+        }
+        else
+        {
+            probMap.Add(p.sym, prob);
+        }
+        rules.Add(new ProductionRule(p, s, pTemp, prob));
     }
 
     public void AddRule(Module p, List<Module> s)

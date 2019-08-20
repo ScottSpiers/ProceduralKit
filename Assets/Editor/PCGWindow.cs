@@ -17,12 +17,15 @@ public class PCGWindow : EditorWindow
     private Vector2 scrollPos;
     private int createdCount = 0;
 
+    private Dictionary<string, int> dupMap = new Dictionary<string, int>();
     private int dupCount;
 
     private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
     [SerializeField] private List<string> keyList = new List<string>();
     [SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
+
+
 
 
     LSystem lSys = new LSystem();
@@ -50,7 +53,7 @@ public class PCGWindow : EditorWindow
         if(isInit && rules.Count <= 0)
         {
             rules.Add("");
-            pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
+            pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f, 1.0f));
             isInit = false;
         }
 
@@ -117,7 +120,9 @@ public class PCGWindow : EditorWindow
         if (GUILayout.Button("Generate"))
         {
             //Debug.Log("Generating...");
-            foreach(ProductionRule r in pRules)
+
+            Debug.Log(pRules.Count);
+            foreach (ProductionRule r in pRules)
             {
                 lSys.AddRule(r);
             }
@@ -131,17 +136,18 @@ public class PCGWindow : EditorWindow
 
             List<Mesh> meshes = new List<Mesh>();
             dupCount = 0;
-            //dupMap.Clear();
+            dupMap.Clear();
 
-            string symbols = "Ff+-[]|";
+            //string symbols = "Ff+-[]|";
             for (int i = 0; i < numOut; ++i)
             {
+                EditorUtility.DisplayProgressBar("Generating Geometry...", "Generating Geometry...", ((float)i / numOut));
                 List<Module> mods = lSys.RunSystem(num);
                 string str_out = "";
                 foreach (Module m in mods)
                 {
-                    if(symbols.IndexOf(m.sym) != -1)
-                        str_out += m;
+                    str_out += m;
+                    //if (symbols.IndexOf(m.sym) != -1)
                 }
 
 
@@ -149,17 +155,17 @@ public class PCGWindow : EditorWindow
                 //str_out.Replace("^[Ff+-()[][0-9]", "");
                 //Debug.Log(str_out);
 
-                //if (dupMap.ContainsKey(str_out))
-                //{
-                //    dupMap[str_out] += 1;
-                //}
-                //else
-                //{
-                //    dupMap.Add(str_out, 1);
-                //}
+                if (dupMap.ContainsKey(str_out))
+                {
+                    dupMap[str_out] += 1;
+                }
+                else
+                {
+                    dupMap.Add(str_out, 1);
+                }
                 //Debug.Log(str_out);
 
-                    
+
 
                 Interpreter intptr = new Interpreter();
                 GameObject go = new GameObject("Geometry" + i);
@@ -174,60 +180,60 @@ public class PCGWindow : EditorWindow
                 Mesh newMesh = intptr.InterpretSystem(mods, stepSize, width, angle);
                 mf.mesh = newMesh;
 
-                Dictionary<Vector3, int> vertexCount = new Dictionary<Vector3, int>();
-                foreach(Vector3 v in newMesh.vertices)
-                {
-                    if(vertexCount.ContainsKey(v))
-                    {
-                        vertexCount[v] += 1;
-                    }
-                    else
-                    {
-                        vertexCount.Add(v, 1);
-                    }
-                }
+                //Dictionary<Vector3, int> vertexCount = new Dictionary<Vector3, int>();
+                //foreach (Vector3 v in newMesh.vertices)
+                //{
+                //    if (vertexCount.ContainsKey(v))
+                //    {
+                //        vertexCount[v] += 1;
+                //    }
+                //    else
+                //    {
+                //        vertexCount.Add(v, 1);
+                //    }
+                //}
 
-                bool isDuplicate = false;
-                foreach(Mesh m in meshes)
-                {
-                    Dictionary<Vector3, int> vCount = new Dictionary<Vector3, int>();
-                    foreach(Vector3 v in m.vertices)
-                    {
-                        if (vCount.ContainsKey(v))
-                        {
-                            vCount[v] += 1;
-                        }
-                        else
-                        {
-                            vCount.Add(v, 1);
-                        }
-                    }
+                //bool isDuplicate = false;
+                //foreach (Mesh m in meshes)
+                //{
+                //    Dictionary<Vector3, int> vCount = new Dictionary<Vector3, int>();
+                //    foreach (Vector3 v in m.vertices)
+                //    {
+                //        if (vCount.ContainsKey(v))
+                //        {
+                //            vCount[v] += 1;
+                //        }
+                //        else
+                //        {
+                //            vCount.Add(v, 1);
+                //        }
+                //    }
 
-                    bool isDup = true;
-                    if (vertexCount.Keys.Count == vCount.Keys.Count)
-                    {
-                        foreach (KeyValuePair<Vector3, int> kv in vertexCount)
-                        {
-                            if (!vCount.ContainsKey(kv.Key))
-                            {
-                                isDup = false;
-                                break;
-                            }
-                            else if (vCount[kv.Key] != kv.Value)
-                            {
-                                isDup = false;
-                                break;
-                            }
-                        }
-                        if (isDup)
-                        {
-                            isDuplicate = true;
-                            ++dupCount;
-                        }
-                    }
-                }
-                if (!isDuplicate)
-                    meshes.Add(newMesh);
+                //    bool isDup = true;
+                //    if (vertexCount.Keys.Count == vCount.Keys.Count)
+                //    {
+                //        foreach (KeyValuePair<Vector3, int> kv in vertexCount)
+                //        {
+                //            if (!vCount.ContainsKey(kv.Key))
+                //            {
+                //                isDup = false;
+                //                break;
+                //            }
+                //            else if (vCount[kv.Key] != kv.Value)
+                //            {
+                //                isDup = false;
+                //                break;
+                //            }
+                //        }
+                //        if (isDup)
+                //        {
+                //            isDuplicate = true;
+                //            ++dupCount;
+                //        }
+                //    }
+                //}
+                //if (!isDuplicate)
+                //    meshes.Add(newMesh);
 
                 ++createdCount;
 
@@ -236,15 +242,16 @@ public class PCGWindow : EditorWindow
                 PrefabUtility.SaveAsPrefabAssetAndConnect(go, "Assets/NewGO" + createdCount + ".prefab", InteractionMode.AutomatedAction);               
                 
             }
+            EditorUtility.ClearProgressBar();
 
-            //foreach (KeyValuePair<Tuple<Vector3[], int[]>, int> kv in dupMap)
-            //{
-            //    if (kv.Value > 1)
-            //    {
-            //        dupCount += kv.Value - 1;
-            //        Debug.Log("Duplicate Reuslt: " + kv.Key + "\nTimes Generated: " + kv.Value);
-            //    }
-            //}
+            foreach (KeyValuePair<string, int> kv in dupMap)
+            {
+                if (kv.Value > 1)
+                {
+                    dupCount += kv.Value - 1;
+                    Debug.Log("Duplicate Reuslt: " + kv.Key + "\nTimes Generated: " + kv.Value);
+                }
+            }
             Debug.Log("Num Duplicates: " + dupCount);
         }
         EditorGUILayout.EndScrollView();

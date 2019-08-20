@@ -72,7 +72,7 @@ public class ProductionRuleDrawer : PropertyDrawer
         //go through list setting arrayElementAtIndex to mods[i]
         //that should be it
 
-        SerializedProperty probProp = property.FindPropertyRelative("prob");
+        SerializedProperty probProp = property.FindPropertyRelative("desiredProb");
         EditorGUI.PropertyField(new Rect(position.x + position.width * 0.85f, position.y, position.width * 0.15f, position.height), probProp, new GUIContent("Prob: "));
         
 

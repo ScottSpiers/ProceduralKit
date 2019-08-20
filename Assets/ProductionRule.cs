@@ -12,18 +12,21 @@ public class ProductionRule
         suc = new List<Module>();
         sucRep = "";
         prob = 1.0f;
+        desiredProb = 1.0f;
     }
 
-    public ProductionRule(Module p, List<Module> s, float probability)
+    public ProductionRule(Module p, List<Module> s, float probability, float desProb)
     {
         pre = p;
         suc = s;
         sucRep = "";
         prob = probability;
+        desiredProb = desProb;
     }
 
     public Module pre;
     public List<Module> suc;
     public string sucRep; //string representation of the successor
     public float prob;
+    public float desiredProb;
 }
