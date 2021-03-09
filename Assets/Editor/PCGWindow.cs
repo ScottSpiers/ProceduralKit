@@ -1,32 +1,36 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System;
-using System.Text.RegularExpressions;
 
 public class PCGWindow : EditorWindow
 {
-    bool isInit = true;
-    private string str = "Default";
+    private SerializedObject serObj;
+    private string axiom = "";
     private int num = 1;
     private float stepSize = 1f;
     private float width = 1f;
     private float angle = 22.7f;
     private int numOut = 1;
+    private int createdCount = 0;
+    private int varsCreated = 0;
 
     private Vector2 scrollPos;
-    private int createdCount = 0;
+    private Vector2 variableScrollPos;
+    private Vector2 prodRuleScrollPos;
 
     private Dictionary<string, int> dupMap = new Dictionary<string, int>();
     private int dupCount;
 
-    private List<string> rules = new List<string>();
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
-    [SerializeField] private List<string> keyList = new List<string>();
-    [SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
-
-
-
+    [SerializeField] private VariableMap<string,float> variables = new VariableMap<string,float>();
+    
+    //Removed Code - Will remove once confident everything is working as part of a future commmit.
+    
+    //bool isInit = true;
+    //[SerializeField] private List<string> keyList = new List<string>();
+    //[SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
+    //private List<string> rules = new List<string>(); //Is this the original Prod Rules?
+    //[SerializeField] List<Variable> varList = variables.
 
     LSystem lSys = new LSystem();
     
@@ -37,6 +41,15 @@ public class PCGWindow : EditorWindow
         GetWindow<PCGWindow>("PCG");
     }
 
+    public void OnEnable()
+    {
+        serObj = new SerializedObject(this);
+        
+        if(pRules.Count < 1)
+        {
+                pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f, 1.0f));
+        }
+    }
 
     /*
      *  EditorGUILayout.BeginHorizontal();
@@ -47,51 +60,54 @@ public class PCGWindow : EditorWindow
         */
 
     private void OnGUI()
-    {
-        lSys.Clear();
-        
-        if(isInit && rules.Count <= 0)
-        {
-            rules.Add("");
-            pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f, 1.0f));
-            isInit = false;
-        }
+    {        
+        // if(isInit)
+        // {
+        //     //lSys = new LSystem();
+        //     //rules.Add("");
+        //     //varsCreated = variables.Count;
+            
+        //     //serObj = new SerializedObject(this);
+        //     isInit = false;
+        // }
 
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        lSys.Clear(); //Could do this first thing on clicking "Generate"? Will that keep adding production rules...
+
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos); 
         //scrollPos = EditorGUILayout.BeginVertical(GUILayout.Height(100));
 
-        GUILayout.Label("Variables: ", EditorStyles.boldLabel);
-        SerializedObject obj = new SerializedObject(this);
-
-        SerializedProperty keyProp = obj.FindProperty("keyList");
-        EditorGUILayout.PropertyField(keyProp, new GUIContent("Names: "), true);
-
-        SerializedProperty valProp = obj.FindProperty("valList");
-        EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
-
-
-        int lowCount = keyList.Count;
-        if (valList.Count < lowCount)
-        {
-            lowCount = valList.Count;
-            
-        }
-
-        for(int i = 0; i < lowCount; ++i)
-        {
-            lSys.SetVar(keyList[i], valList[i]);
-        }
-
         GUILayout.Label("L-Systems:", EditorStyles.boldLabel);
-        
-        str = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
-        lSys.SetAxiom(str);
+        //SerializedObject obj = new SerializedObject(this);
 
+        // SerializedProperty keyProp = obj.FindProperty("keyList");
+        // EditorGUILayout.PropertyField(keyProp, new GUIContent("Names: "), true);
 
-        SerializedProperty ruleProp = obj.FindProperty("pRules");
-        EditorGUILayout.PropertyField(ruleProp, new GUIContent("Rules: "), true);
+        // SerializedProperty valProp = obj.FindProperty("valList");
+        // EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
+
+        DrawVariableMap();
+        //GUILayout.Space(VariableDrawer.propHeight);
+        // int lowCount = keyList.Count;
+        // if (valList.Count < lowCount)
+        // {
+        //     lowCount = valList.Count;
+            
+        // }
+
+        //change to just copy dict?
+        foreach(KeyValuePair<string, float> kv in variables)
+        {
+            //Debug.Log("Key: " + kv.Key + " = " + kv.Value);
+            lSys.SetVar(kv.Key, kv.Value);
+            // lSys.SetVar(variables[i].key, variables[i].value);
+        }
+
+        axiom = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
+        lSys.SetAxiom(axiom);
+
+        DrawProductionRules();
         
-        obj.ApplyModifiedProperties();
+        serObj.ApplyModifiedProperties();
 
         
         foreach(ProductionRule pr in pRules)
@@ -104,18 +120,13 @@ public class PCGWindow : EditorWindow
             }
         }
 
-        //Moves the generate button
-        Repaint();
-
         stepSize = EditorGUILayout.FloatField("Segment Length: ", stepSize);
-
         width = EditorGUILayout.FloatField("Segment Width: ", width);
-
         angle = EditorGUILayout.FloatField("Angle: ", angle);
-
         num = EditorGUILayout.IntField("Iterations: ", num);
-
         numOut = EditorGUILayout.IntField("Output Count: ", numOut);
+
+        GUILayout.FlexibleSpace();
 
         if (GUILayout.Button("Generate"))
         {
@@ -258,31 +269,132 @@ public class PCGWindow : EditorWindow
 
     }
 
-    //private void UpdateList()
-    //{
-    //    int n = rules.Count;
-    //    if (num < n)
-    //    {
-    //        while (n > num)
-    //        {
-    //            rules.RemoveAt(n - 1);
-    //            //pRules.RemoveAt(n - 1);
-    //            --n;
-    //        }
-    //    }
-    //    else if (num > n)
-    //    {
-    //        while (n < num)
-    //        {
-    //            rules.Add("");
-    //            //pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f));
-    //            ++n;
-    //        }
-    //    }
-    //}
+    private bool prodRulesExpanded = false;
 
-    //private ProductionRule EditRule()
-    //{
-    //    return null;
-    //}
+    private void DrawProductionRules()
+    {
+        float lblWidth = EditorGUIUtility.labelWidth;
+        SerializedProperty ruleProp = serObj.FindProperty("pRules");
+
+        prodRulesExpanded = EditorGUILayout.Foldout(prodRulesExpanded, "Rules:", true);
+        if(prodRulesExpanded)
+        {
+            //This is affecting the labels for the proprty drawer for some reason.
+            // Should improve field widths in there but this does for now.
+            EditorGUIUtility.labelWidth = lblWidth * 0.6f;
+            bool shouldScroll = pRules.Count >= 5;
+
+            if(shouldScroll)
+            {
+                prodRuleScrollPos = EditorGUILayout.BeginScrollView(prodRuleScrollPos, GUILayout.Height(100f));
+            }
+
+            //Want to add Rule # before drawing property?
+            for(int i = 0; i < ruleProp.arraySize; ++i)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(ruleProp.GetArrayElementAtIndex(i));
+
+                if(GUILayout.Button("x", GUILayout.Width(35f))) //put this in a method? Get remove button? Pass behaviour default width = 35f? Probs not worth
+                {
+                    ruleProp.DeleteArrayElementAtIndex(i);
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            if(shouldScroll)
+            {
+                EditorGUILayout.EndScrollView();
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            if(GUILayout.Button("+"))
+            {
+                ++ruleProp.arraySize;
+            }
+
+            if(pRules.Count > 0)
+            {
+                if(GUILayout.Button("-"))
+                {
+                    --ruleProp.arraySize;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+    }
+
+    private bool variablesExpanded = false;
+    private string varName = "var";
+    private void DrawVariableMap()
+    {
+        float lblWidth = EditorGUIUtility.labelWidth;
+
+        SerializedProperty varProp = serObj.FindProperty("variables");
+
+        variablesExpanded = EditorGUILayout.Foldout(variablesExpanded,"Variables:",  true);
+        if(variablesExpanded)
+        {
+            EditorGUIUtility.labelWidth = lblWidth * 0.334f;
+
+            SerializedProperty keysProp = varProp.FindPropertyRelative("keys");
+            int numKeys = keysProp.arraySize;
+            SerializedProperty valuesProp = varProp.FindPropertyRelative("values");
+            valuesProp.arraySize = numKeys;
+
+            bool shouldScroll = numKeys >= 5;
+            if(shouldScroll)
+            {
+                variableScrollPos = EditorGUILayout.BeginScrollView(variableScrollPos, GUILayout.Height(100f));
+            }
+                      
+            for(int i = 0; i < numKeys; ++i)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(keysProp.GetArrayElementAtIndex(i), new GUIContent("Key " + (i+1)));
+                EditorGUILayout.PropertyField(valuesProp.GetArrayElementAtIndex(i), new GUIContent("Value " + (i+1)));
+
+                if(GUILayout.Button("x", GUILayout.Width(35f)))
+                {
+                    keysProp.DeleteArrayElementAtIndex(i);
+                    valuesProp.DeleteArrayElementAtIndex(i);
+                    --numKeys;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            if(shouldScroll)
+            {
+                EditorGUILayout.EndScrollView();
+            }
+            
+            EditorGUILayout.BeginHorizontal();
+            if(GUILayout.Button("+"))
+            {
+                ++keysProp.arraySize;
+                ++valuesProp.arraySize;
+                ++varsCreated;
+
+                //Get to a key we haven't used. This shouldn't be needed too often.
+                while(variables.ContainsKey(varName + varsCreated))
+                {
+                    ++varsCreated;
+                }
+
+                keysProp.GetArrayElementAtIndex(keysProp.arraySize-1).stringValue = varName + varsCreated;
+            }
+
+            if(numKeys > 0)
+            {
+                if(GUILayout.Button("-"))
+                {
+                    --keysProp.arraySize;
+                    --valuesProp.arraySize;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUIUtility.labelWidth = lblWidth;
+        }
+    }
 }

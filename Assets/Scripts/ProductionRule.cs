@@ -28,5 +28,5 @@ public class ProductionRule
     public List<Module> suc;
     public string sucRep; //string representation of the successor
     public float prob;
-    public float desiredProb;
+    [Range(0f, 1f)] public float desiredProb;
 }

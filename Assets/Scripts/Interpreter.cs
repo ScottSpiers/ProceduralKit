@@ -48,6 +48,7 @@ public class Interpreter
             {
                 case 'F':
                     {
+                        Debug.Log(m.parameters.Count);
                         //Check params: Assume 1st is stepSize 2nd is width 3rd is stepDelta 4th is branchDelta
                         if (m.parameters.Count > 0) //will need to extend this for width
                             curState.stepSize = m.parameters[0];
