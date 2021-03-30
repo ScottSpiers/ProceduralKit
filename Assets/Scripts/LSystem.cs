@@ -64,7 +64,7 @@ public class LSystem
         {
             foreach (Module m in curWord)
             {
-                Debug.Log(m);
+                //Debug.Log(m);
                 bool replaced = false;
                 foreach (ProductionRule r in rules)
                 {
@@ -146,7 +146,7 @@ public class LSystem
             probMap.Add(r.pre.sym, p);
         }
 
-        Debug.Log("Desired: " + r.desiredProb + "\tEffective: " + r.prob);
+        //Debug.Log("Desired: " + r.desiredProb + "\tEffective: " + r.prob);
         rules.Add(r);
     }
 

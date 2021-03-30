@@ -33,8 +33,9 @@ public class Interpreter
         int index = 0;
         bool isBranchReturn = false;
         bool isStart = true;
+        int stepCount = 1; //Debugging
 
-        Quaternion q = Quaternion.identity;
+        Quaternion q = Quaternion.Euler(Vector3.up);
 
         foreach(Module m in modules)
         {
@@ -48,7 +49,7 @@ public class Interpreter
             {
                 case 'F':
                     {
-                        Debug.Log(m.parameters.Count);
+                        //Debug.Log(m.parameters.Count);
                         //Check params: Assume 1st is stepSize 2nd is width 3rd is stepDelta 4th is branchDelta
                         if (m.parameters.Count > 0) //will need to extend this for width
                             curState.stepSize = m.parameters[0];
@@ -64,6 +65,11 @@ public class Interpreter
                         //{
                         
                             //Add Vertices
+                            Debug.Log("Step : " + stepCount + " " + curState.pos);
+                            Debug.Log("Step : " + stepCount + " " + (curState.pos + ((q * offset) * curState.width)));
+                            Debug.Log("Step : " + stepCount + " " + nextState.pos);
+                            Debug.Log("Step : " + stepCount++ + " " + offsetPoint);
+
                             verts.Add(curState.pos);
                             verts.Add(curState.pos + ((q * offset) * curState.width));
                             verts.Add(nextState.pos);
@@ -152,7 +158,11 @@ public class Interpreter
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
 
+                        nextState.pos = curState.pos + ((q * Vector3.down) * curState.width);
+
+                        Debug.Log(q.eulerAngles);
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * angle));
+                        Debug.Log(q.eulerAngles);
                         //nextState.RotateAxisAngle(Vector3.forward, angleDelta);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[2], angleDelta);
                         break;
@@ -165,7 +175,10 @@ public class Interpreter
                         //check for params: 1st is angle, should there be any more?
                         //change these back to 2!
                         //nextState.RotateAxisAngle(Vector3.forward, -angleDelta);
+                        nextState.pos = curState.pos + ((q * offset) * curState.width); //some nastiness our rotation is right but the next step will be weird so fake it!
+                        Debug.Log(q.eulerAngles);
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * -angle));
+                        Debug.Log(q.eulerAngles);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[2], -angleDelta);
                         break;
                     }
@@ -211,7 +224,10 @@ public class Interpreter
                     }
                 case '|':
                     {
+                        Debug.Log(q.eulerAngles);
+                        
                         q = Quaternion.Euler(q.eulerAngles + (Vector3.forward * 180.0f));
+                        Debug.Log(q.eulerAngles);
                         //nextState.RotateAxisAngle(Vector3.forward, 180.0f);
                         //rotMatrix *= XMMatrixRotationAxis(rotMatrix.r[2], (180.0f * XM_PI) / 180);
                         break;
