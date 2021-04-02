@@ -132,7 +132,7 @@ public class PCGWindow : EditorWindow
         {
             //Debug.Log("Generating...");
 
-            Debug.Log(pRules.Count);
+            //Debug.Log(pRules.Count);
             foreach (ProductionRule r in pRules)
             {
                 lSys.AddRule(r);
@@ -142,7 +142,7 @@ public class PCGWindow : EditorWindow
             float xOffset = 10f;
 
             Material mat = new Material(Shader.Find("Sprites/Default"));
-            mat.color = new Color(0.0f, 0.0f, 0.0f, 0.2f);
+            mat.color = new Color(0.0f, 0.0f, 0.0f, 1.0f);
             AssetDatabase.CreateAsset(mat, "Assets/GeometryMaterial.mat");
 
             List<Mesh> meshes = new List<Mesh>();
