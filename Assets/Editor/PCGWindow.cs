@@ -18,6 +18,8 @@ public class PCGWindow : EditorWindow
     private Vector2 variableScrollPos;
     private Vector2 prodRuleScrollPos;
 
+    private Interpreter.TurtlePos turtlePos;
+
     private Dictionary<string, int> dupMap = new Dictionary<string, int>();
     private int dupCount;
 
@@ -126,6 +128,8 @@ public class PCGWindow : EditorWindow
         num = EditorGUILayout.IntField("Iterations: ", num);
         numOut = EditorGUILayout.IntField("Output Count: ", numOut);
 
+        turtlePos = (Interpreter.TurtlePos) EditorGUILayout.EnumPopup("Turtle Position: ", turtlePos);
+
         GUILayout.FlexibleSpace();
 
         if (GUILayout.Button("Generate"))
@@ -188,7 +192,7 @@ public class PCGWindow : EditorWindow
                //Material mat = new Material(Shader.Find("Sprites/Default"));
                 mr.sharedMaterial = mat;
                 //mr.sharedMaterial.color = Color.black;
-                Mesh newMesh = intptr.InterpretSystem(mods, stepSize, width, angle);
+                Mesh newMesh = intptr.InterpretSystem(mods, turtlePos, stepSize, width, angle);
                 mf.mesh = newMesh;
 
                 //Dictionary<Vector3, int> vertexCount = new Dictionary<Vector3, int>();

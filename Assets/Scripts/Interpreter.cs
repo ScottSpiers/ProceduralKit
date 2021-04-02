@@ -4,12 +4,19 @@ using UnityEngine;
 
 public class Interpreter
 {
+    public enum TurtlePos
+    {
+        BOTTOM_LEFT = 0,
+        BOTTOM_CENTRE,
+        CENTRE_CENTRE
+    }
+
     public Interpreter()
     {
 
     }
 
-    public Mesh InterpretSystem(List<Module> modules, float stepSize, float width, float angleDelta)
+    public Mesh InterpretSystem(List<Module> modules, TurtlePos turtlePos, float stepSize, float width, float angleDelta)
     {
         Mesh mesh = new Mesh();
         List<Vector3> verts = new List<Vector3>();
@@ -73,7 +80,7 @@ public class Interpreter
                             // Debug.Log("Step : " + stepCount + " " + nextState.pos);
                             // Debug.Log("Step : " + stepCount++ + " " + offsetPoint);
 
-                            if(useBottomCentrePos)
+                            if(turtlePos == TurtlePos.BOTTOM_CENTRE)
                             {
                                 Vector3 rotatedRight = (q *offset) * (curState.width /2);
                                 offsetPoint = nextState.pos + rotatedRight;
@@ -82,7 +89,7 @@ public class Interpreter
                                 verts.Add(nextState.pos - rotatedRight);
                                 verts.Add(nextState.pos + rotatedRight);
                             }
-                            else if(useCentreCentrePos)
+                            else if(turtlePos == TurtlePos.CENTRE_CENTRE)
                             {
                                 Vector3 rotatedRight = (q *offset) * (curState.width /2);
                                 Vector3 rotatedUp = (q * Vector3.up) * (curState.stepSize / 2);
@@ -183,7 +190,7 @@ public class Interpreter
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
 
-                        if(!useBottomCentrePos && !useCentreCentrePos)
+                        if(turtlePos == TurtlePos.BOTTOM_LEFT)
                         {
                             nextState.pos = curState.pos + ((q * Vector3.down) * curState.width);
                         }
@@ -204,7 +211,7 @@ public class Interpreter
                         //change these back to 2!
                         //nextState.RotateAxisAngle(Vector3.forward, -angleDelta);
 
-                        if(!useBottomCentrePos & !useCentreCentrePos)
+                        if(turtlePos == TurtlePos.BOTTOM_LEFT)
                         {
                             nextState.pos = curState.pos + ((q * offset) * curState.width); //some nastiness our rotation is right but the next step will be weird so fake it!
                         }
