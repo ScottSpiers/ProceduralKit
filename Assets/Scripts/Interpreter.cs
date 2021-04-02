@@ -36,6 +36,7 @@ public class Interpreter
         int stepCount = 1; //Debugging
 
         bool useBottomCentrePos = true;
+        bool useCentreCentrePos = false;
 
         Quaternion q = Quaternion.Euler(Vector3.up);
 
@@ -67,10 +68,10 @@ public class Interpreter
                         //{
                         
                             //Add Vertices
-                            Debug.Log("Step : " + stepCount + " " + curState.pos);
-                            Debug.Log("Step : " + stepCount + " " + (curState.pos + ((q * offset) * curState.width)));
-                            Debug.Log("Step : " + stepCount + " " + nextState.pos);
-                            Debug.Log("Step : " + stepCount++ + " " + offsetPoint);
+                            // Debug.Log("Step : " + stepCount + " " + curState.pos);
+                            // Debug.Log("Step : " + stepCount + " " + (curState.pos + ((q * offset) * curState.width)));
+                            // Debug.Log("Step : " + stepCount + " " + nextState.pos);
+                            // Debug.Log("Step : " + stepCount++ + " " + offsetPoint);
 
                             if(useBottomCentrePos)
                             {
@@ -80,6 +81,16 @@ public class Interpreter
                                 verts.Add(curState.pos + rotatedRight);
                                 verts.Add(nextState.pos - rotatedRight);
                                 verts.Add(nextState.pos + rotatedRight);
+                            }
+                            else if(useCentreCentrePos)
+                            {
+                                Vector3 rotatedRight = (q *offset) * (curState.width /2);
+                                Vector3 rotatedUp = (q * Vector3.up) * (curState.stepSize / 2);
+                                offsetPoint = nextState.pos + (rotatedUp + rotatedRight);
+                                verts.Add(curState.pos - (rotatedUp + rotatedRight)); //BL -( 0.5, 0.5) = (-0.5,-0.5)
+                                verts.Add(curState.pos - (rotatedUp - rotatedRight)); //BR -(-0.5,0.5) = ( 0.5,-0.5)
+                                verts.Add(curState.pos + (rotatedUp - rotatedRight)); //TL +(-0.5,0.5) = (-0.5, 0.5)
+                                verts.Add(curState.pos + (rotatedUp + rotatedRight)); //TR +( 0.5,0.5) = ( 0.5, 0.5)
                             }
                             else 
                             {
@@ -172,7 +183,7 @@ public class Interpreter
                         if (m.parameters.Count >= 1) //will need to extend this for width
                             angle = m.parameters[0];
 
-                        if(!useBottomCentrePos)
+                        if(!useBottomCentrePos && !useCentreCentrePos)
                         {
                             nextState.pos = curState.pos + ((q * Vector3.down) * curState.width);
                         }
@@ -193,7 +204,7 @@ public class Interpreter
                         //change these back to 2!
                         //nextState.RotateAxisAngle(Vector3.forward, -angleDelta);
 
-                        if(!useBottomCentrePos)
+                        if(!useBottomCentrePos & !useCentreCentrePos)
                         {
                             nextState.pos = curState.pos + ((q * offset) * curState.width); //some nastiness our rotation is right but the next step will be weird so fake it!
                         }
