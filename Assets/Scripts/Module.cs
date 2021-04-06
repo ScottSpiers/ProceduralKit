@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
-using System.Linq.Expressions;
-using UnityEngine;
 
 [Serializable]
 public class Module
@@ -45,7 +42,6 @@ public class Module
 
     public override bool Equals(object obj)
     {
-        Expression<Transition> test;
         Module other = (Module)obj;
         return (sym == other.sym) && (parameters.Count == other.parameters.Count);
     }

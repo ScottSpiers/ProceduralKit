@@ -1,7 +1,7 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 [Serializable]
 public class VariableMap<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
 {

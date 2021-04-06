@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Tester : MonoBehaviour
 {
-    // Start is called before the first frame update
     void Start()
     {
         Module a = new Module('A', new List<float>{ 1.0f });
@@ -45,7 +43,6 @@ public class Tester : MonoBehaviour
         Debug.Log(str_out);
     }
 
-    // Update is called once per frame
     void Update()
     {
         

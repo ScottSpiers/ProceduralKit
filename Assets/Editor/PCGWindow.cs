@@ -26,13 +26,6 @@ public class PCGWindow : EditorWindow
     [SerializeField] private List<ProductionRule> pRules = new List<ProductionRule>();
     [SerializeField] private VariableMap<string,float> variables = new VariableMap<string,float>();
     
-    //Removed Code - Will remove once confident everything is working as part of a future commmit.
-    
-    //bool isInit = true;
-    //[SerializeField] private List<string> keyList = new List<string>();
-    //[SerializeField] private List<float> valList = new List<float>(); //eeeeeeewwwwwwww
-    //private List<string> rules = new List<string>(); //Is this the original Prod Rules?
-    //[SerializeField] List<Variable> varList = variables.
 
     LSystem lSys = new LSystem();
     
@@ -46,72 +39,23 @@ public class PCGWindow : EditorWindow
     public void OnEnable()
     {
         serObj = new SerializedObject(this);
-        
-        if(pRules.Count < 1)
-        {
-                pRules.Add(new ProductionRule(new Module('F'), new List<Module>(), 1.0f, 1.0f));
-        }
     }
 
-    /*
-     *  EditorGUILayout.BeginHorizontal();
-        scrollPos =
-            EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Width(100), GUILayout.Height(100));
-        GUILayout.Label(t);
-        EditorGUILayout.EndScrollView();
-        */
-
     private void OnGUI()
-    {        
-        // if(isInit)
-        // {
-        //     //lSys = new LSystem();
-        //     //rules.Add("");
-        //     //varsCreated = variables.Count;
-            
-        //     //serObj = new SerializedObject(this);
-        //     isInit = false;
-        // }
-
-        lSys.Clear(); //Could do this first thing on clicking "Generate"? Will that keep adding production rules...
-
+    { 
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos); 
-        //scrollPos = EditorGUILayout.BeginVertical(GUILayout.Height(100));
 
         GUILayout.Label("L-Systems:", EditorStyles.boldLabel);
-        //SerializedObject obj = new SerializedObject(this);
 
-        // SerializedProperty keyProp = obj.FindProperty("keyList");
-        // EditorGUILayout.PropertyField(keyProp, new GUIContent("Names: "), true);
+        DrawVariableMap();        
 
-        // SerializedProperty valProp = obj.FindProperty("valList");
-        // EditorGUILayout.PropertyField(valProp, new GUIContent("Values: "), true);
-
-        DrawVariableMap();
-        //GUILayout.Space(VariableDrawer.propHeight);
-        // int lowCount = keyList.Count;
-        // if (valList.Count < lowCount)
-        // {
-        //     lowCount = valList.Count;
-            
-        // }
-
-        //change to just copy dict?
-        foreach(KeyValuePair<string, float> kv in variables)
-        {
-            //Debug.Log("Key: " + kv.Key + " = " + kv.Value);
-            lSys.SetVar(kv.Key, kv.Value);
-            // lSys.SetVar(variables[i].key, variables[i].value);
-        }
-
-        axiom = EditorGUILayout.DelayedTextField("Axiom: ", lSys.GetAxiom());
-        lSys.SetAxiom(axiom);
-
+        axiom = EditorGUILayout.DelayedTextField("Axiom: ", axiom);
+        
         DrawProductionRules();
         
         serObj.ApplyModifiedProperties();
-
         
+        //What exactly is this doing? What effect will moving it have?
         foreach(ProductionRule pr in pRules)
         {
             pr.suc.Clear();
@@ -134,7 +78,17 @@ public class PCGWindow : EditorWindow
 
         if (GUILayout.Button("Generate"))
         {
+            lSys.Clear();
+
             //Debug.Log("Generating...");
+            lSys.SetAxiom(axiom);
+
+            //change to just copy dict?
+            foreach(KeyValuePair<string, float> kv in variables)
+            {
+                //Debug.Log("Key: " + kv.Key + " = " + kv.Value);
+                lSys.SetVar(kv.Key, kv.Value);
+            }
 
             //Debug.Log(pRules.Count);
             foreach (ProductionRule r in pRules)
@@ -142,9 +96,7 @@ public class PCGWindow : EditorWindow
                 lSys.AddRule(r);
             }
 
-
-            float xOffset = 10f;
-
+            //Grab this from scene or set it via UI?
             Material mat = new Material(Shader.Find("Sprites/Default"));
             mat.color = new Color(0.0f, 0.0f, 0.0f, 1.0f);
             AssetDatabase.CreateAsset(mat, "Assets/GeometryMaterial.mat");
@@ -153,22 +105,18 @@ public class PCGWindow : EditorWindow
             dupCount = 0;
             dupMap.Clear();
 
-            //string symbols = "Ff+-[]|";
             for (int i = 0; i < numOut; ++i)
             {
                 EditorUtility.DisplayProgressBar("Generating Geometry...", "Generating Geometry...", ((float)i / numOut));
                 List<Module> mods = lSys.RunSystem(num);
+
+                //Detect duplicates made by the system - somewhat useful but do 
+                //we want to disable by default and have option to switch on?
                 string str_out = "";
                 foreach (Module m in mods)
                 {
                     str_out += m;
-                    //if (symbols.IndexOf(m.sym) != -1)
                 }
-
-
-                //str_out = Regex.Replace(str_out, "[^Ff+*/ ()0-9|,-]", "", RegexOptions.Compiled);
-                //str_out.Replace("^[Ff+-()[][0-9]", "");
-                //Debug.Log(str_out);
 
                 if (dupMap.ContainsKey(str_out))
                 {
@@ -178,87 +126,26 @@ public class PCGWindow : EditorWindow
                 {
                     dupMap.Add(str_out, 1);
                 }
-                //Debug.Log(str_out);
-
-
 
                 Interpreter intptr = new Interpreter();
                 GameObject go = new GameObject("Geometry" + i);
-                //go.transform.position = Vector3.zero;
                 go.transform.position = new Vector3(0f, 0f, 0f);
                 MeshFilter mf = go.AddComponent<MeshFilter>();
                 MeshRenderer mr = go.AddComponent<MeshRenderer>();
-            
-               //Material mat = new Material(Shader.Find("Sprites/Default"));
                 mr.sharedMaterial = mat;
-                //mr.sharedMaterial.color = Color.black;
+
                 Mesh newMesh = intptr.InterpretSystem(mods, turtlePos, stepSize, width, angle);
                 mf.mesh = newMesh;
-
-                //Dictionary<Vector3, int> vertexCount = new Dictionary<Vector3, int>();
-                //foreach (Vector3 v in newMesh.vertices)
-                //{
-                //    if (vertexCount.ContainsKey(v))
-                //    {
-                //        vertexCount[v] += 1;
-                //    }
-                //    else
-                //    {
-                //        vertexCount.Add(v, 1);
-                //    }
-                //}
-
-                //bool isDuplicate = false;
-                //foreach (Mesh m in meshes)
-                //{
-                //    Dictionary<Vector3, int> vCount = new Dictionary<Vector3, int>();
-                //    foreach (Vector3 v in m.vertices)
-                //    {
-                //        if (vCount.ContainsKey(v))
-                //        {
-                //            vCount[v] += 1;
-                //        }
-                //        else
-                //        {
-                //            vCount.Add(v, 1);
-                //        }
-                //    }
-
-                //    bool isDup = true;
-                //    if (vertexCount.Keys.Count == vCount.Keys.Count)
-                //    {
-                //        foreach (KeyValuePair<Vector3, int> kv in vertexCount)
-                //        {
-                //            if (!vCount.ContainsKey(kv.Key))
-                //            {
-                //                isDup = false;
-                //                break;
-                //            }
-                //            else if (vCount[kv.Key] != kv.Value)
-                //            {
-                //                isDup = false;
-                //                break;
-                //            }
-                //        }
-                //        if (isDup)
-                //        {
-                //            isDuplicate = true;
-                //            ++dupCount;
-                //        }
-                //    }
-                //}
-                //if (!isDuplicate)
-                //    meshes.Add(newMesh);
 
                 ++createdCount;
 
                 AssetDatabase.CreateAsset(mf.sharedMesh, "Assets/NewGO" + createdCount + ".mesh");
-                //AssetDatabase.CreateAsset(mr.sharedMaterial, "Assets/NewGO" + createdCount + ".mat");
                 PrefabUtility.SaveAsPrefabAssetAndConnect(go, "Assets/NewGO" + createdCount + ".prefab", InteractionMode.AutomatedAction);               
                 
             }
             EditorUtility.ClearProgressBar();
 
+            //See above dupMap comment
             foreach (KeyValuePair<string, int> kv in dupMap)
             {
                 if (kv.Value > 1)
@@ -282,8 +169,8 @@ public class PCGWindow : EditorWindow
 
         prodRulesExpanded = EditorGUILayout.Foldout(prodRulesExpanded, "Rules:", true);
         if(prodRulesExpanded)
-        {
-            //This is affecting the labels for the proprty drawer for some reason.
+        {            
+            //This is affecting the labels for the proprty drawer as it's not reset before it grabs the label width.
             // Should improve field widths in there but this does for now.
             EditorGUIUtility.labelWidth = lblWidth * 0.6f;
             bool shouldScroll = pRules.Count >= 5;
@@ -299,7 +186,7 @@ public class PCGWindow : EditorWindow
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PropertyField(ruleProp.GetArrayElementAtIndex(i));
 
-                if(GUILayout.Button("x", GUILayout.Width(35f))) //put this in a method? Get remove button? Pass behaviour default width = 35f? Probs not worth
+                if(GUILayout.Button("x", GUILayout.Width(35f)))
                 {
                     ruleProp.DeleteArrayElementAtIndex(i);
                 }
